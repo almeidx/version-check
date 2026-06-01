@@ -32,13 +32,13 @@
 		"prepare": "husky .github/husky"
 	},
 	"devDependencies": {
-		"@types/node": "^24.10.2",
+		"@types/node": "^24.12.4",
 		"husky": "^9.1.7",
 		"oxfmt": "^0.52.0",
 		"oxlint": "^1.67.0",
 		"tsdown": "^0.22.1",
 		"typescript": "^6.0.3",
-		"vitest": "^4.1.8"
+		"vitest": "^4.1.7"
 	},
 	"engines": {
 		"node": ">=24.0.0"
