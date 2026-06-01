@@ -107,6 +107,9 @@ importers:
 
   packages/core:
     devDependencies:
+      '@types/node':
+        specifier: ^24.12.4
+        version: 24.12.4
       tsdown:
         specifier: ^0.22.1
         version: 0.22.1(typescript@6.0.3)
@@ -126,6 +129,9 @@ importers:
         specifier: workspace:*
         version: link:../react
     devDependencies:
+      '@types/node':
+        specifier: ^24.12.4
+        version: 24.12.4
       '@types/react':
         specifier: ^19.2.15
         version: 19.2.15
@@ -148,6 +154,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@types/node':
+        specifier: ^24.12.4
+        version: 24.12.4
       '@types/react':
         specifier: ^19.2.15
         version: 19.2.15
@@ -167,6 +176,9 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
+      '@types/node':
+        specifier: ^24.12.4
+        version: 24.12.4
       tsdown:
         specifier: ^0.22.1
         version: 0.22.1(typescript@6.0.3)

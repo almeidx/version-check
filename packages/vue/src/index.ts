@@ -1,3 +1,5 @@
+export * from "@almeidx/version-check";
+
 import {
 	createVersionChecker,
 	type VersionCheckOptions,

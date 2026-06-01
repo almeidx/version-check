@@ -8,6 +8,9 @@
 		"url": "git+https://github.com/almeidx/version-check.git",
 		"directory": "packages/core"
 	},
+	"bin": {
+		"version-check": "./dist/cli.mjs"
+	},
 	"files": [
 		"dist"
 	],
@@ -19,6 +22,12 @@
 			"import": {
 				"types": "./dist/index.d.mts",
 				"default": "./dist/index.mjs"
+			}
+		},
+		"./cli": {
+			"import": {
+				"types": "./dist/cli.d.mts",
+				"default": "./dist/cli.mjs"
 			}
 		}
 	},
@@ -32,6 +41,7 @@
 		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
 	"devDependencies": {
+		"@types/node": "^24.12.4",
 		"tsdown": "^0.22.1",
 		"typescript": "^6.0.3",
 		"vitest": "^4.1.7"

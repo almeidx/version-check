@@ -16,6 +16,9 @@ message.
 | `@almeidx/version-check-next`  | Next.js build id route helper and client hook       |
 | `@almeidx/version-check-vue`   | Vue composable                                      |
 
+Framework packages re-export the core API and expose the `version-check` CLI, so apps only need to
+install the package they use.
+
 ## Version endpoint
 
 The default endpoint is `/version.json`. The payload can be a string or an object with one of
@@ -27,11 +30,24 @@ The default endpoint is `/version.json`. The payload can be a string or an objec
 }
 ```
 
-Generate a simple `public/version.json` during builds:
+Generate a simple `public/version.json` during builds with the package CLI.
 
 ```sh
-pnpm generate:version
+version-check generate public
 ```
+
+For package scripts:
+
+```json
+{
+	"scripts": {
+		"prebuild": "version-check generate public"
+	}
+}
+```
+
+The generated `buildId` uses `VERSION_CHECK_BUILD_ID`, `VERCEL_GIT_COMMIT_SHA`,
+`GITHUB_SHA`, or the current package version.
 
 ## Vanilla JS
 

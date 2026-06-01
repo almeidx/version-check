@@ -1,3 +1,5 @@
+export * from "@almeidx/version-check";
+
 import { readFile } from "node:fs/promises";
 import { isAbsolute, join } from "node:path";
 

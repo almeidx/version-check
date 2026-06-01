@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"prebuild": "node ../../scripts/write-version-json.mjs public",
+		"prebuild": "version-check generate public",
 		"build": "tsc --noEmit -p tsconfig.json && vite build",
 		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},

@@ -1,5 +1,7 @@
 "use client";
 
+export * from "@almeidx/version-check";
+
 import type { VersionPayload } from "@almeidx/version-check";
 import { useVersionCheck, type UseVersionCheckOptions, type UseVersionCheckResult } from "@almeidx/version-check-react";
 import type { NextVersionPayload } from "./index.js";

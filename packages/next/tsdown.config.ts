@@ -1,7 +1,7 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
-	entry: ["src/index.ts", "src/client.ts"],
+	entry: ["src/index.ts", "src/client.ts", "src/cli.ts"],
 	format: "esm",
 	dts: true,
 	sourcemap: true,
@@ -12,6 +12,7 @@ export default defineConfig({
 			"next",
 			"react",
 			"@almeidx/version-check",
+			"@almeidx/version-check/cli",
 			"@almeidx/version-check-react",
 			"node:fs/promises",
 			"node:path",

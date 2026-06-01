@@ -28,7 +28,7 @@
 		"fmt": "oxfmt --write && oxlint --fix --import-plugin --react-plugin --vitest-plugin --jsx-a11y-plugin --vue-plugin",
 		"fmt:check": "oxfmt --check",
 		"check": "pnpm lint && pnpm build:typecheck && pnpm test && pnpm build",
-		"generate:version": "node scripts/write-version-json.mjs",
+		"generate:version": "pnpm --filter @almeidx/version-check build && node packages/core/dist/cli.mjs generate",
 		"prepare": "husky .github/husky"
 	},
 	"devDependencies": {

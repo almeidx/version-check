@@ -3,6 +3,7 @@
 	"compilerOptions": {
 		"paths": {
 			"@almeidx/version-check": ["../core/src/index.ts"],
+			"@almeidx/version-check/cli": ["../core/src/cli.ts"],
 			"@almeidx/version-check-react": ["../react/src/index.ts"]
 		},
 		"types": ["node"]
