@@ -2,6 +2,10 @@ import { useVersionCheck } from "@almeidx/version-check-react";
 
 const currentVersion = import.meta.env.VITE_VERSION_CHECK_BUILD_ID ?? __VERSION_CHECK_BUILD_ID__;
 
+function refreshPage() {
+	window.location.reload();
+}
+
 export function App() {
 	const versionCheck = useVersionCheck({
 		currentVersion,
@@ -16,7 +20,7 @@ export function App() {
 			{versionCheck.updateAvailable ? (
 				<output className="update">
 					<span>New version available.</span>
-					<button type="button" onClick={versionCheck.reload}>
+					<button type="button" onClick={refreshPage}>
 						Refresh
 					</button>
 				</output>

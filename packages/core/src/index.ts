@@ -312,10 +312,6 @@ export function createVersionChecker<TLatest extends VersionPayload = VersionPay
 	return checker;
 }
 
-export function reloadPage(targetWindow: Pick<Window, "location"> | undefined = getGlobalWindow()): void {
-	targetWindow?.location.reload();
-}
-
 function getGlobalWindow(): Window | undefined {
 	return typeof window === "undefined" ? undefined : window;
 }

@@ -1,14 +1,7 @@
-import { getNextBuildId } from "@almeidx/version-check-next";
-import { VersionBanner } from "./version-banner.js";
-
-export default async function Page() {
-	const buildId = await getNextBuildId();
-
+export default function Page() {
 	return (
 		<main>
 			<h1>Next version check</h1>
-			<p>Current build: {buildId}</p>
-			<VersionBanner initialVersion={buildId} />
 		</main>
 	);
 }

@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+import { getNextBuildId } from "@almeidx/version-check-next";
+import type { PropsWithChildren } from "react";
+import { VersionBanner } from "./version-banner.js";
 import "./style.css";
 
 export const metadata = {
@@ -6,10 +8,15 @@ export const metadata = {
 	description: "Example for @almeidx/version-check-next",
 };
 
-export default function RootLayout({ children }: { readonly children: ReactNode }) {
+export default async function RootLayout({ children }: PropsWithChildren) {
+	const buildId = await getNextBuildId();
+
 	return (
 		<html lang="en">
-			<body>{children}</body>
+			<body>
+				<VersionBanner initialVersion={buildId} />
+				{children}
+			</body>
 		</html>
 	);
 }

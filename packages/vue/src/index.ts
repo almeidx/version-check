@@ -1,24 +1,19 @@
 import {
 	createVersionChecker,
-	reloadPage,
 	type VersionCheckOptions,
 	type VersionCheckState,
-	type VersionChecker,
 	type VersionPayload,
 } from "@almeidx/version-check";
 import { getCurrentScope, onScopeDispose, readonly, shallowRef, type DeepReadonly, type Ref } from "vue";
 
-export type UseVersionCheckOptions<TLatest extends VersionPayload = VersionPayload> = VersionCheckOptions<TLatest>;
+export type UseVersionCheckOptions<TLatest extends VersionPayload = VersionPayload> = Omit<
+	VersionCheckOptions<TLatest>,
+	"autoStart"
+>;
 
-export type UseVersionCheckResult<TLatest extends VersionPayload = VersionPayload> = {
-	readonly state: DeepReadonly<Ref<VersionCheckState<TLatest>>>;
-	readonly checker: VersionChecker<TLatest>;
-	readonly check: () => Promise<VersionCheckState<TLatest>>;
-	readonly start: () => void;
-	readonly stop: () => void;
-	readonly reload: () => void;
-	readonly dispose: () => void;
-};
+export type UseVersionCheckResult<TLatest extends VersionPayload = VersionPayload> = DeepReadonly<
+	Ref<VersionCheckState<TLatest>>
+>;
 
 export function useVersionCheck<TLatest extends VersionPayload = VersionPayload>(
 	options: UseVersionCheckOptions<TLatest>,
@@ -32,9 +27,7 @@ export function useVersionCheck<TLatest extends VersionPayload = VersionPayload>
 		state.value = nextState;
 	});
 
-	if (options.autoStart !== false) {
-		checker.start();
-	}
+	checker.start();
 
 	function dispose(): void {
 		unsubscribe();
@@ -45,13 +38,5 @@ export function useVersionCheck<TLatest extends VersionPayload = VersionPayload>
 		onScopeDispose(dispose);
 	}
 
-	return {
-		state: readonly(state),
-		checker,
-		check: checker.check,
-		start: checker.start,
-		stop: checker.stop,
-		reload: reloadPage,
-		dispose,
-	};
+	return readonly(state);
 }

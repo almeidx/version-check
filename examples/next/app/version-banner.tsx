@@ -2,6 +2,10 @@
 
 import { useNextVersionCheck } from "@almeidx/version-check-next/client";
 
+function refreshPage() {
+	window.location.reload();
+}
+
 export function VersionBanner({ initialVersion }: { readonly initialVersion: string }) {
 	const versionCheck = useNextVersionCheck({
 		currentVersion: { buildId: initialVersion },
@@ -13,7 +17,7 @@ export function VersionBanner({ initialVersion }: { readonly initialVersion: str
 	return (
 		<output className="update">
 			<span>New version available.</span>
-			<button type="button" onClick={versionCheck.reload}>
+			<button type="button" onClick={refreshPage}>
 				Refresh
 			</button>
 		</output>
