@@ -1,0 +1,23 @@
+{
+	"name": "example-next",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"typecheck": "tsc --noEmit -p tsconfig.json"
+	},
+	"dependencies": {
+		"@almeidx/version-check-next": "workspace:*",
+		"next": "^16.2.6",
+		"react": "^19.2.6",
+		"react-dom": "^19.2.6"
+	},
+	"devDependencies": {
+		"@types/node": "^24.10.2",
+		"@types/react": "^19.2.15",
+		"@types/react-dom": "^19.2.3",
+		"typescript": "^6.0.3"
+	}
+}

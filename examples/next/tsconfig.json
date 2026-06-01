@@ -1,0 +1,17 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"allowJs": true,
+		"incremental": true,
+		"noEmit": true,
+		"plugins": [{ "name": "next" }],
+		"paths": {
+			"@almeidx/version-check": ["../../packages/core/src/index.ts"],
+			"@almeidx/version-check-react": ["../../packages/react/src/index.ts"],
+			"@almeidx/version-check-next": ["../../packages/next/src/index.ts"],
+			"@almeidx/version-check-next/client": ["../../packages/next/src/client.ts"]
+		}
+	},
+	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+	"exclude": ["node_modules"]
+}

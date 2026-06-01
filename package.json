@@ -1,0 +1,47 @@
+{
+	"name": "version-check",
+	"version": "0.0.1",
+	"private": true,
+	"description": "Headless web app version/update detector.",
+	"keywords": [
+		"app",
+		"build-id",
+		"deploy",
+		"frontend",
+		"version-check"
+	],
+	"homepage": "https://github.com/almeidx/version-check#readme",
+	"bugs": "https://github.com/almeidx/version-check/issues",
+	"license": "Apache-2.0",
+	"author": "almeidx (https://almeidx.dev)",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/almeidx/version-check.git"
+	},
+	"type": "module",
+	"scripts": {
+		"build": "pnpm -r --filter './packages/*' build && pnpm -r --filter './examples/*' build",
+		"dev": "pnpm --parallel --filter './packages/*' dev",
+		"test": "vitest run",
+		"build:typecheck": "pnpm -r typecheck",
+		"lint": "oxfmt --check && oxlint --import-plugin --react-plugin --vitest-plugin --jsx-a11y-plugin --vue-plugin",
+		"fmt": "oxfmt --write && oxlint --fix --import-plugin --react-plugin --vitest-plugin --jsx-a11y-plugin --vue-plugin",
+		"fmt:check": "oxfmt --check",
+		"check": "pnpm lint && pnpm build:typecheck && pnpm test && pnpm build",
+		"generate:version": "node scripts/write-version-json.mjs",
+		"prepare": "husky .github/husky"
+	},
+	"devDependencies": {
+		"@types/node": "^24.10.2",
+		"husky": "^9.1.7",
+		"oxfmt": "^0.52.0",
+		"oxlint": "^1.67.0",
+		"tsdown": "^0.22.1",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.8"
+	},
+	"engines": {
+		"node": ">=24.0.0"
+	},
+	"packageManager": "pnpm@11.5.0"
+}

@@ -1,0 +1,11 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"types": ["vite/client", "node"],
+		"paths": {
+			"@almeidx/version-check": ["../../packages/core/src/index.ts"],
+			"@almeidx/version-check-vue": ["../../packages/vue/src/index.ts"]
+		}
+	},
+	"include": ["src/**/*.ts", "vite.config.ts"]
+}

@@ -1,0 +1,155 @@
+name: Publish Release
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+concurrency:
+  group: release-publish
+  cancel-in-progress: false
+
+jobs:
+  version:
+    name: Get Version
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.merged == true &&
+        (
+          contains(github.event.pull_request.labels.*.name, 'release') ||
+          startsWith(github.event.pull_request.head.ref, 'release/v')
+        )
+      )
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+      npm_tag: ${{ steps.version.outputs.npm_tag }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v$VERSION"
+          PRERELEASE="false"
+          NPM_TAG="latest"
+
+          if [[ "$VERSION" == *-* ]]; then
+            PRERELEASE="true"
+            PRERELEASE_PART="${VERSION#*-}"
+            NPM_TAG="${PRERELEASE_PART%%.*}"
+          fi
+
+          echo "Version: $VERSION"
+          echo "Tag: $TAG"
+          echo "Prerelease: $PRERELEASE"
+          echo "npm tag: $NPM_TAG"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$PRERELEASE" >> "$GITHUB_OUTPUT"
+          echo "npm_tag=$NPM_TAG" >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: Publish
+    needs: version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.16.0
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm run lint
+
+      - run: pnpm run build:typecheck
+
+      - run: pnpm run test
+
+      - run: pnpm run build
+
+      - name: Extract changelog for this version
+        id: changelog
+        run: |
+          VERSION="${{ needs.version.outputs.version }}"
+
+          awk -v ver="$VERSION" '
+            /^## \[/ {
+              if (found) exit
+              if (index($0, "## [" ver "]") == 1) found=1
+            }
+            found { print }
+          ' CHANGELOG.md > release_notes.txt
+
+          if [ ! -s release_notes.txt ]; then
+            echo "## [$VERSION]" > release_notes.txt
+            echo "" >> release_notes.txt
+            echo "Release $VERSION" >> release_notes.txt
+          fi
+
+          cat release_notes.txt
+
+      - name: Pack packages
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          TARBALL_DIR="$RUNNER_TEMP/version-check-packages"
+          mkdir -p "$TARBALL_DIR"
+          pnpm -r --filter './packages/*' pack --pack-destination "$TARBALL_DIR"
+          test -f "$TARBALL_DIR/almeidx-version-check-${VERSION}.tgz"
+          test -f "$TARBALL_DIR/almeidx-version-check-react-${VERSION}.tgz"
+          test -f "$TARBALL_DIR/almeidx-version-check-vue-${VERSION}.tgz"
+          test -f "$TARBALL_DIR/almeidx-version-check-next-${VERSION}.tgz"
+          echo "TARBALL_DIR=$TARBALL_DIR" >> "$GITHUB_ENV"
+
+      - name: Publish to npm
+        env:
+          NPM_TAG: ${{ needs.version.outputs.npm_tag }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          npm publish "$TARBALL_DIR/almeidx-version-check-${VERSION}.tgz" --access public --tag "$NPM_TAG"
+          npm publish "$TARBALL_DIR/almeidx-version-check-react-${VERSION}.tgz" --access public --tag "$NPM_TAG"
+          npm publish "$TARBALL_DIR/almeidx-version-check-vue-${VERSION}.tgz" --access public --tag "$NPM_TAG"
+          npm publish "$TARBALL_DIR/almeidx-version-check-next-${VERSION}.tgz" --access public --tag "$NPM_TAG"
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create tag
+        run: |
+          TAG="${{ needs.version.outputs.tag }}"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ needs.version.outputs.tag }}
+          name: ${{ needs.version.outputs.tag }}
+          body_path: release_notes.txt
+          draft: false
+          prerelease: ${{ needs.version.outputs.prerelease }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
