@@ -1,11 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
-import {
-	VersionCheckError,
-	createVersionChecker,
-	fetchJsonVersion,
-	isUpdateAvailable,
-	resolveVersionId,
-} from "../src/index.js";
+import { fetchJsonVersion } from "../src/fetch-json-version.js";
+import { VersionCheckError, createVersionChecker, isUpdateAvailable, resolveVersionId } from "../src/index.js";
 
 class FakeEventTarget {
 	private readonly listeners = new Map<string, Set<EventListener>>();
@@ -190,6 +185,144 @@ describe("createVersionChecker", () => {
 			error,
 			updateAvailable: false,
 		});
+	});
+
+	test("isolates a throwing subscriber from the check result and other subscribers", async () => {
+		const reportError = vi.fn<(error: unknown) => void>();
+		vi.stubGlobal("reportError", reportError);
+
+		const checker = createVersionChecker({
+			currentVersion: "1",
+			fetcher: async () => "1",
+		});
+
+		const seen: string[] = [];
+		checker.subscribe(() => {
+			throw new Error("bad subscriber");
+		});
+		checker.subscribe((state) => {
+			seen.push(state.status);
+		});
+
+		const result = await checker.check();
+
+		// The successful fetch is not misreported as an error because a subscriber threw.
+		expect(result.status).toBe("current");
+		// The second subscriber still receives every update.
+		expect(seen).toEqual(["checking", "current"]);
+		// The thrown errors are surfaced out of band (one per emit).
+		expect(reportError).toHaveBeenCalledTimes(2);
+
+		vi.unstubAllGlobals();
+	});
+
+	test("a superseded check never emits a stale intermediate state", async () => {
+		let resolveLatest!: (value: string) => void;
+		const latestFetch = new Promise<string>((resolve) => {
+			resolveLatest = resolve;
+		});
+		let call = 0;
+		const checker = createVersionChecker({
+			currentVersion: "1",
+			checkImmediately: false,
+			intervalMs: 0,
+			fetcher: () => {
+				call += 1;
+				return call === 1 ? Promise.resolve("1") : latestFetch;
+			},
+		});
+
+		const statuses: string[] = [];
+		checker.subscribe((state) => statuses.push(state.status));
+
+		const superseded = checker.check();
+		const latest = checker.check();
+
+		// The first (aborted) check settles while the second is still pending.
+		await superseded;
+		await flushMicrotasks();
+
+		expect(statuses).not.toContain("idle");
+		expect(checker.getState().status).toBe("checking");
+
+		resolveLatest("2");
+		await latest;
+
+		expect(checker.getState()).toMatchObject({ status: "update-available", latestVersion: "2", updateAvailable: true });
+		expect(statuses.filter((status) => status === "update-available")).toHaveLength(1);
+	});
+
+	test("throttles lifecycle checks with minIntervalMs", async () => {
+		const fakeWindow = new FakeWindow();
+		let clock = 0;
+		let checks = 0;
+		const checker = createVersionChecker({
+			currentVersion: "1",
+			intervalMs: 0,
+			checkImmediately: false,
+			minIntervalMs: 1000,
+			getWindow: () => fakeWindow as unknown as Window,
+			now: () => clock,
+			fetcher: async () => {
+				checks += 1;
+				return "1";
+			},
+		});
+
+		checker.start();
+
+		fakeWindow.dispatch("focus");
+		await flushMicrotasks();
+		expect(checks).toBe(1);
+
+		clock = 500;
+		fakeWindow.dispatch("online");
+		await flushMicrotasks();
+		expect(checks).toBe(1); // within the throttle window
+
+		clock = 1500;
+		fakeWindow.dispatch("online");
+		await flushMicrotasks();
+		expect(checks).toBe(2); // window elapsed
+
+		checker.stop();
+	});
+
+	test("pauses interval polling while hidden and resumes on visibility", async () => {
+		vi.useFakeTimers();
+
+		const fakeWindow = new FakeWindow();
+		let checks = 0;
+		const checker = createVersionChecker({
+			currentVersion: "1",
+			intervalMs: 1000,
+			checkImmediately: false,
+			getWindow: () => fakeWindow as unknown as Window,
+			fetcher: async () => {
+				checks += 1;
+				return "1";
+			},
+		});
+
+		checker.start();
+		await vi.advanceTimersByTimeAsync(1000);
+		expect(checks).toBe(1);
+
+		fakeWindow.document.visibilityState = "hidden";
+		fakeWindow.document.dispatch("visibilitychange");
+		await vi.advanceTimersByTimeAsync(3000);
+		expect(checks).toBe(1); // no polling while hidden
+
+		fakeWindow.document.visibilityState = "visible";
+		fakeWindow.document.dispatch("visibilitychange");
+		await flushMicrotasks();
+		expect(checks).toBe(2); // immediate check on becoming visible
+
+		await vi.advanceTimersByTimeAsync(1000);
+		expect(checks).toBe(3); // interval resumed
+
+		checker.stop();
+		vi.useRealTimers();
 	});
 });
 

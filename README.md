@@ -142,7 +142,7 @@ function refreshPage() {
 
 export function VersionBanner({ initialVersion }: { initialVersion: string }) {
 	const versionCheck = useNextVersionCheck({
-		currentVersion: { buildId: initialVersion },
+		currentVersion: initialVersion,
 	});
 
 	if (!versionCheck.updateAvailable) return null;
@@ -160,10 +160,14 @@ export function VersionBanner({ initialVersion }: { initialVersion: string }) {
 
 ## Vue
 
+The composable returns the reactive `state` plus `check` (force a check now) and `stop` (tear down
+early). It only polls in the browser, so it is SSR-safe, and it disposes automatically with the
+surrounding effect scope.
+
 ```ts
 import { useVersionCheck } from "@almeidx/version-check-vue";
 
-const versionCheck = useVersionCheck({
+const { state } = useVersionCheck({
 	currentVersion: import.meta.env.VITE_BUILD_ID,
 });
 
@@ -173,7 +177,7 @@ function refreshPage() {
 ```
 
 ```html
-<button v-if="versionCheck.value.updateAvailable" type="button" @click="refreshPage">Refresh to update</button>
+<button v-if="state.updateAvailable" type="button" @click="refreshPage">Refresh to update</button>
 ```
 
 ## Custom comparison
@@ -187,6 +191,21 @@ createVersionChecker({
 	compare: ({ currentVersion, latestVersion }) => String(latestVersion) > String(currentVersion),
 });
 ```
+
+## Polling behavior
+
+The checker polls every `intervalMs` (default 30 minutes) and also re-checks on window focus, network
+reconnect, and the tab becoming visible. A few options tune this:
+
+- `pauseWhenHidden` (default `true`) pauses the interval while the tab is hidden and checks once it
+  becomes visible again, instead of polling a backgrounded tab.
+- `minIntervalMs` (default `0`) sets a minimum gap between lifecycle-triggered checks. Bursts of
+  focus/online/visibility events are always collapsed to a single in-flight check regardless.
+- `refetchOnWindowFocus`, `refetchOnReconnect`, and `refetchOnVisibilityChange` (each default `true`)
+  turn off individual triggers.
+
+The React and Vue hooks also expose `check()` to force an immediate check (e.g. from a "check for
+updates" button); the Vue composable additionally returns `stop()`.
 
 ## Development
 

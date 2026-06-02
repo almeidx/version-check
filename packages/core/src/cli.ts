@@ -6,7 +6,7 @@ import { parseArgs as parseNodeArgs } from "node:util";
 
 type GenerateOptions = {
 	readonly output: string;
-	readonly buildId?: string;
+	readonly buildId?: string | undefined;
 	readonly cwd: string;
 };
 
@@ -42,16 +42,16 @@ function parseCliArgs(args: readonly string[]): GenerateOptions | "help" {
 		return "help";
 	}
 
-	const [commandOrOutput, maybeOutput, ...extraPositionals] = positionals;
-	const hasCommand = commandOrOutput === "generate" || commandOrOutput === "write";
-	if (extraPositionals.length > 0 || (maybeOutput !== undefined && !hasCommand)) {
-		throw new Error(`Unexpected positional arguments: ${positionals.join(" ")}`);
+	// `generate` is the only command, and it is optional: `version-check [generate] [output]`.
+	const operands = positionals[0] === "generate" ? positionals.slice(1) : positionals;
+	if (operands.length > 1) {
+		throw new Error(`Unexpected positional arguments: ${operands.join(" ")}`);
 	}
 
 	const buildId = values["build-id"];
 
 	return {
-		output: hasCommand ? (maybeOutput ?? "public") : (commandOrOutput ?? "public"),
+		output: operands[0] ?? "public",
 		cwd: values.cwd ?? process.cwd(),
 		...(buildId === undefined ? {} : { buildId }),
 	};
@@ -75,7 +75,6 @@ async function resolveBuildId(options: GenerateOptions): Promise<string> {
 		process.env.VERCEL_GIT_COMMIT_SHA,
 		process.env.GITHUB_SHA,
 		await readPackageVersion(options.cwd),
-		"local-dev",
 	];
 
 	for (const candidate of candidates) {
@@ -101,6 +100,12 @@ async function generateVersionFile(options: GenerateOptions): Promise<string> {
 	return outputFile;
 }
 
+/**
+ * Runs the `version-check` CLI, which generates a `version.json` file containing a build id.
+ *
+ * @param args - CLI arguments without the leading `node` and script path.
+ * @returns The process exit code: `0` on success, `1` on error.
+ */
 export async function runCli(args: readonly string[] = process.argv.slice(2)): Promise<number> {
 	try {
 		const options = parseCliArgs(args);

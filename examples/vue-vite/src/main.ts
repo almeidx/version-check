@@ -11,7 +11,7 @@ function refreshPage() {
 const App = defineComponent({
 	name: "App",
 	setup() {
-		const versionCheck = useVersionCheck({
+		const { state } = useVersionCheck({
 			currentVersion,
 			intervalMs: 30_000,
 		});
@@ -20,8 +20,8 @@ const App = defineComponent({
 			h("main", [
 				h("h1", "Vue Vite version check"),
 				h("p", `Current build: ${currentVersion}`),
-				h("p", `Status: ${versionCheck.value.status}`),
-				versionCheck.value.updateAvailable
+				h("p", `Status: ${state.value.status}`),
+				state.value.updateAvailable
 					? h("section", { role: "status", class: "update" }, [
 							h("span", "New version available."),
 							h("button", { type: "button", onClick: refreshPage }, "Refresh"),

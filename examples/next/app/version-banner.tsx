@@ -8,7 +8,7 @@ function refreshPage() {
 
 export function VersionBanner({ initialVersion }: { readonly initialVersion: string }) {
 	const versionCheck = useNextVersionCheck({
-		currentVersion: { buildId: initialVersion },
+		currentVersion: initialVersion,
 		intervalMs: 30_000,
 	});
 
