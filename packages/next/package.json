@@ -2,7 +2,25 @@
 	"name": "@almeidx/version-check-next",
 	"version": "0.2.0-next.0",
 	"description": "Next.js adapter for @almeidx/version-check.",
+	"keywords": [
+		"app-router",
+		"build-id",
+		"deployment",
+		"esm",
+		"frontend",
+		"next",
+		"nextjs",
+		"react",
+		"typescript",
+		"update-detector",
+		"version-check"
+	],
+	"homepage": "https://github.com/almeidx/version-check/tree/main/packages/next#readme",
+	"bugs": {
+		"url": "https://github.com/almeidx/version-check/issues"
+	},
 	"license": "Apache-2.0",
+	"author": "almeidx (https://almeidx.dev)",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/almeidx/version-check.git",

@@ -2,7 +2,22 @@
 	"name": "@almeidx/version-check",
 	"version": "0.2.0-next.0",
 	"description": "Headless web app version/update detector.",
+	"keywords": [
+		"build-id",
+		"deployment",
+		"esm",
+		"frontend",
+		"polling",
+		"typescript",
+		"update-detector",
+		"version-check"
+	],
+	"homepage": "https://github.com/almeidx/version-check/tree/main/packages/core#readme",
+	"bugs": {
+		"url": "https://github.com/almeidx/version-check/issues"
+	},
 	"license": "Apache-2.0",
+	"author": "almeidx (https://almeidx.dev)",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/almeidx/version-check.git",
