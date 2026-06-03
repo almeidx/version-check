@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0-next.3] - 2026-06-03
+
+- refactor: make build id resolution env-only
+- Move version bump script under .github
+
 ## [0.2.0-next.2] - 2026-06-03
 
 - Add Vite plugin for version checks
