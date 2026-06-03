@@ -30,6 +30,8 @@
 		"version-check": "./bin/version-check.mjs"
 	},
 	"files": [
+		"CHANGELOG.md",
+		"README.md",
 		"bin",
 		"dist"
 	],

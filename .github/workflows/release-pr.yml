@@ -140,13 +140,21 @@ jobs:
           rm new_section.txt
           cat CHANGELOG.md
 
+      - name: Sync package changelogs
+        run: |
+          for package_dir in packages/*; do
+            if [ -d "$package_dir" ]; then
+              cp CHANGELOG.md "$package_dir/CHANGELOG.md"
+            fi
+          done
+
       - name: Create release branch and push
         run: |
           TAG="${{ steps.version.outputs.tag }}"
           BRANCH="${{ steps.version.outputs.branch }}"
 
           git checkout -b "$BRANCH"
-          git add package.json pnpm-lock.yaml CHANGELOG.md packages/*/package.json
+          git add package.json pnpm-lock.yaml CHANGELOG.md packages/*/CHANGELOG.md packages/*/package.json
           git commit -m "chore: release $TAG"
           git push --force origin "$BRANCH"
 
@@ -175,7 +183,7 @@ jobs:
 
           ### Changes
           - Updated package versions to $VERSION
-          - Updated CHANGELOG.md with changes since last release
+          - Updated root and package CHANGELOG.md files with changes since last release
 
           ### After Merge
           When this PR is merged, the release workflow will publish to npm with the \`$NPM_TAG\` dist-tag and create a GitHub Release.
