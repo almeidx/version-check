@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { build, createServer } from "vite";
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { versionCheck } from "../src/index.js";
 
 const temporaryDirectories: string[] = [];
@@ -47,10 +47,145 @@ async function importBuiltDefault(code: string, root: string): Promise<string> {
 }
 
 afterEach(async () => {
+	vi.unstubAllEnvs();
 	await Promise.all(temporaryDirectories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
 });
 
 describe("versionCheck", () => {
+	test("uses deployment environment variables by default", async () => {
+		vi.stubEnv("VERSION_CHECK_BUILD_ID", " env-build ");
+		const root = await createTemporaryDirectory();
+		await writeProjectFile(
+			root,
+			"entry.ts",
+			[
+				'import defaultBuildId, { buildId } from "virtual:version-check/build-id";',
+				"export default [defaultBuildId, buildId].join('|');",
+				"",
+			].join("\n"),
+		);
+
+		const result = normalizeOutput(
+			await build({
+				root,
+				logLevel: "silent",
+				plugins: [versionCheck()],
+				build: {
+					write: false,
+					lib: {
+						entry: join(root, "entry.ts"),
+						formats: ["es"],
+						fileName: () => "bundle.mjs",
+					},
+				},
+			}),
+		);
+
+		const versionAsset = result.output.find(
+			(item): item is BuildAsset => item.type === "asset" && item.fileName === "version.json",
+		);
+		const bundle = result.output.find(
+			(item): item is BuildChunk => item.type === "chunk" && item.fileName === "bundle.mjs",
+		);
+
+		expect(versionAsset?.source).toBe(`${JSON.stringify({ buildId: "env-build" }, null, "\t")}\n`);
+		expect(bundle?.type).toBe("chunk");
+		await expect(importBuiltDefault(bundle!.code, root)).resolves.toBe("env-build|env-build");
+		expect(bundle!.code).not.toContain("__VERSION_CHECK_BUILD_ID__");
+	});
+
+	test("does not fall back to package metadata by default", async () => {
+		vi.stubEnv("VERSION_CHECK_BUILD_ID", "");
+		vi.stubEnv("SOURCE_COMMIT", "");
+		vi.stubEnv("VERCEL_GIT_COMMIT_SHA", "");
+		vi.stubEnv("GITHUB_SHA", "");
+		const root = await createTemporaryDirectory();
+		await writeProjectFile(root, "package.json", `${JSON.stringify({ version: "9.9.9" }, null, "\t")}\n`);
+		await writeProjectFile(
+			root,
+			"entry.ts",
+			[
+				'import defaultBuildId, { buildId } from "virtual:version-check/build-id";',
+				"export default [defaultBuildId, buildId].join('|');",
+				"",
+			].join("\n"),
+		);
+
+		const result = normalizeOutput(
+			await build({
+				root,
+				logLevel: "silent",
+				plugins: [versionCheck()],
+				build: {
+					write: false,
+					lib: {
+						entry: join(root, "entry.ts"),
+						formats: ["es"],
+						fileName: () => "bundle.mjs",
+					},
+				},
+			}),
+		);
+
+		const versionAsset = result.output.find(
+			(item): item is BuildAsset => item.type === "asset" && item.fileName === "version.json",
+		);
+		const bundle = result.output.find(
+			(item): item is BuildChunk => item.type === "chunk" && item.fileName === "bundle.mjs",
+		);
+
+		expect(versionAsset?.source).toBe(`${JSON.stringify({ buildId: "local-dev" }, null, "\t")}\n`);
+		expect(bundle?.type).toBe("chunk");
+		await expect(importBuiltDefault(bundle!.code, root)).resolves.toBe("local-dev|local-dev");
+	});
+
+	test("honors a custom build id resolver", async () => {
+		const root = await createTemporaryDirectory();
+		await writeProjectFile(
+			root,
+			"entry.ts",
+			[
+				'import defaultBuildId, { buildId } from "virtual:version-check/build-id";',
+				"export default [defaultBuildId, buildId].join('|');",
+				"",
+			].join("\n"),
+		);
+
+		const result = normalizeOutput(
+			await build({
+				root,
+				logLevel: "silent",
+				plugins: [
+					versionCheck({
+						resolveBuildId: ({ root: resolvedRoot }) => {
+							expect(resolvedRoot).toBe(root);
+							return "custom-resolved";
+						},
+					}),
+				],
+				build: {
+					write: false,
+					lib: {
+						entry: join(root, "entry.ts"),
+						formats: ["es"],
+						fileName: () => "bundle.mjs",
+					},
+				},
+			}),
+		);
+
+		const versionAsset = result.output.find(
+			(item): item is BuildAsset => item.type === "asset" && item.fileName === "version.json",
+		);
+		const bundle = result.output.find(
+			(item): item is BuildChunk => item.type === "chunk" && item.fileName === "bundle.mjs",
+		);
+
+		expect(versionAsset?.source).toBe(`${JSON.stringify({ buildId: "custom-resolved" }, null, "\t")}\n`);
+		expect(bundle?.type).toBe("chunk");
+		await expect(importBuiltDefault(bundle!.code, root)).resolves.toBe("custom-resolved|custom-resolved");
+	});
+
 	test("emits the same build id exposed by the virtual module and define constant", async () => {
 		const root = await createTemporaryDirectory();
 		await writeProjectFile(
@@ -67,7 +202,7 @@ describe("versionCheck", () => {
 			await build({
 				root,
 				logLevel: "silent",
-				plugins: [versionCheck({ buildId: "build-from-plugin" })],
+				plugins: [versionCheck({ buildId: "build-from-plugin", define: true })],
 				build: {
 					write: false,
 					lib: {

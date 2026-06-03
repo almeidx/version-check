@@ -49,7 +49,7 @@ The plugin emits `dist/version.json` during builds and serves `/version.json` du
 }
 ```
 
-The generated `buildId` uses an explicit `buildId` option, `VERSION_CHECK_BUILD_ID`, `SOURCE_COMMIT`, `VERCEL_GIT_COMMIT_SHA`, `GITHUB_SHA`, `git rev-parse HEAD`, package version, or `local-dev`.
+The generated `buildId` uses an explicit `buildId` or `resolveBuildId` option, `VERSION_CHECK_BUILD_ID`, `SOURCE_COMMIT`, `VERCEL_GIT_COMMIT_SHA`, `GITHUB_SHA`, or `local-dev`.
 
 ## Options
 
@@ -57,13 +57,20 @@ The generated `buildId` uses an explicit `buildId` option, `VERSION_CHECK_BUILD_
 versionCheck({
 	buildId: process.env.MY_BUILD_ID,
 	fileName: "version.json",
-	define: "__VERSION_CHECK_BUILD_ID__",
+	define: true,
 });
 ```
 
 - `buildId` overrides automatic resolution.
+- `resolveBuildId` provides a custom resolver when you want to read from another explicit source.
 - `fileName` changes the emitted and served JSON asset name.
-- `define` changes the injected global constant name. Pass `false` to disable the global constant and use only the virtual module.
+- `define` opts into a Vite global constant. Pass `true` for `__VERSION_CHECK_BUILD_ID__` or a string for a custom constant name.
+
+```ts
+versionCheck({
+	resolveBuildId: () => process.env.MY_DEPLOY_ID,
+});
+```
 
 ## License
 

@@ -1,22 +1,39 @@
 export * from "@almeidx/version-check";
 
 import { resolve as resolvePath } from "node:path";
-import { createVersionFileContent, resolveBuildId } from "@almeidx/version-check/build";
+import { createVersionFileContent, resolveBuildId as resolveCoreBuildId } from "@almeidx/version-check/build";
 import type { Plugin, UserConfig } from "vite";
 
 const defaultFileName = "version.json";
 const defaultDefineName = "__VERSION_CHECK_BUILD_ID__";
 const virtualModuleId = "virtual:version-check/build-id";
 const resolvedVirtualModuleId = `\0${virtualModuleId}`;
+type MaybePromise<T> = T | Promise<T>;
+
+/** Context passed to a custom Vite build-id resolver. */
+export type VersionCheckViteBuildIdContext = {
+	/** Project root known when Vite config hooks run. */
+	readonly root: string;
+};
+
+/** Custom Vite build-id resolver. */
+export type VersionCheckViteBuildIdResolver = (
+	context: VersionCheckViteBuildIdContext,
+) => MaybePromise<string | undefined>;
 
 /** Options for {@link versionCheck}. */
 export type VersionCheckViteOptions = {
 	/**
 	 * Explicit build id override.
 	 *
-	 * @defaultValue resolved from deployment env, git, package.json, then `"local-dev"`
+	 * @defaultValue resolved from deployment env, then `"local-dev"`
 	 */
 	readonly buildId?: string | undefined;
+	/**
+	 * Custom build id resolver. Use this when you want a source other than the default deployment
+	 * environment variables.
+	 */
+	readonly resolveBuildId?: VersionCheckViteBuildIdResolver | undefined;
 	/**
 	 * Emitted/served version asset name.
 	 *
@@ -24,11 +41,12 @@ export type VersionCheckViteOptions = {
 	 */
 	readonly fileName?: string | undefined;
 	/**
-	 * Global constant to inject with Vite define semantics. Pass `false` to disable it.
+	 * Global constant to inject with Vite define semantics. Pass `true` to use
+	 * `"__VERSION_CHECK_BUILD_ID__"` or a string for a custom constant name.
 	 *
-	 * @defaultValue `"__VERSION_CHECK_BUILD_ID__"`
+	 * @defaultValue `false`
 	 */
-	readonly define?: string | false | undefined;
+	readonly define?: string | boolean | undefined;
 };
 
 function normalizeFileName(fileName: string | undefined): string {
@@ -41,7 +59,13 @@ function normalizeFileName(fileName: string | undefined): string {
 }
 
 function resolveDefineName(define: VersionCheckViteOptions["define"]): string | undefined {
-	return define === false ? undefined : (define ?? defaultDefineName);
+	if (define === true) return defaultDefineName;
+	return typeof define === "string" ? define : undefined;
+}
+
+function normalizeBuildId(buildId: string | undefined): string | undefined {
+	const normalized = buildId?.trim();
+	return normalized === undefined || normalized.length === 0 ? undefined : normalized;
 }
 
 /**
@@ -56,10 +80,15 @@ export function versionCheck(options: VersionCheckViteOptions = {}): Plugin {
 	let buildId: string | undefined;
 
 	function resolveBuildIdOnce(cwd: string): Promise<string> {
-		buildIdPromise ??= resolveBuildId({
-			buildId: options.buildId,
-			cwd,
-		});
+		buildIdPromise ??= (async () => {
+			const explicitBuildId = normalizeBuildId(options.buildId);
+			if (explicitBuildId !== undefined) return explicitBuildId;
+
+			const customBuildId = normalizeBuildId(await options.resolveBuildId?.({ root: cwd }));
+			if (customBuildId !== undefined) return customBuildId;
+
+			return resolveCoreBuildId();
+		})();
 
 		return buildIdPromise;
 	}

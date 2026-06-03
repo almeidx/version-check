@@ -1,11 +1,5 @@
-import { execFile } from "node:child_process";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, extname, join } from "node:path";
-import { promisify } from "node:util";
-
-const execFileAsync = promisify(execFile);
-
-type MaybePromise<T> = T | Promise<T>;
 
 /** Environment variables consulted by {@link resolveBuildId}. */
 export type BuildIdEnvironment = {
@@ -20,29 +14,11 @@ export type ResolveBuildIdOptions = {
 	/** Explicit build id override. */
 	readonly buildId?: string | undefined;
 	/**
-	 * Directory used for git/package.json fallback resolution.
-	 *
-	 * @defaultValue `process.cwd()`
-	 */
-	readonly cwd?: string | undefined;
-	/**
 	 * Environment source.
 	 *
 	 * @defaultValue `process.env`
 	 */
 	readonly env?: BuildIdEnvironment | undefined;
-	/**
-	 * Git commit reader. It is injectable so callers can test fallback behavior without shelling out.
-	 *
-	 * @defaultValue `git rev-parse HEAD`
-	 */
-	readonly readGitCommit?: ((cwd: string) => MaybePromise<string | undefined>) | undefined;
-	/**
-	 * package.json version reader. It is injectable so callers can test fallback behavior without touching disk.
-	 *
-	 * @defaultValue reads `package.json` in {@link cwd}
-	 */
-	readonly readPackageVersion?: ((cwd: string) => MaybePromise<string | undefined>) | undefined;
 };
 
 /** Options for writing a `version.json` file. */
@@ -51,45 +27,19 @@ export type WriteVersionFileOptions = ResolveBuildIdOptions & {
 	readonly output: string;
 };
 
-async function readPackageVersionFromPackageJson(cwd: string): Promise<string | undefined> {
-	try {
-		const packageJson = JSON.parse(await readFile(join(cwd, "package.json"), "utf8")) as { version?: unknown };
-		return typeof packageJson.version === "string" ? packageJson.version : undefined;
-	} catch {
-		return undefined;
-	}
-}
-
-async function readGitCommitFromGit(cwd: string): Promise<string | undefined> {
-	const { stdout } = await execFileAsync("git", ["rev-parse", "HEAD"], { cwd });
-	return stdout;
-}
-
 function normalizeBuildId(candidate: string | undefined): string | undefined {
 	const normalized = candidate?.trim();
 	return normalized === undefined || normalized.length === 0 ? undefined : normalized;
-}
-
-async function tryResolve(candidate: () => MaybePromise<string | undefined>): Promise<string | undefined> {
-	try {
-		return normalizeBuildId(await candidate());
-	} catch {
-		return undefined;
-	}
 }
 
 /**
  * Resolves the current deployment build id.
  *
  * Precedence: explicit `buildId`, `VERSION_CHECK_BUILD_ID`, `SOURCE_COMMIT`,
- * `VERCEL_GIT_COMMIT_SHA`, `GITHUB_SHA`, `git rev-parse HEAD`, package.json version,
- * then `"local-dev"`.
+ * `VERCEL_GIT_COMMIT_SHA`, `GITHUB_SHA`, then `"local-dev"`.
  */
 export async function resolveBuildId(options: ResolveBuildIdOptions = {}): Promise<string> {
-	const cwd = options.cwd ?? process.cwd();
 	const env = options.env ?? process.env;
-	const readGitCommit = options.readGitCommit ?? readGitCommitFromGit;
-	const readPackageVersion = options.readPackageVersion ?? readPackageVersionFromPackageJson;
 	const directBuildId = [
 		options.buildId,
 		env.VERSION_CHECK_BUILD_ID,
@@ -101,12 +51,6 @@ export async function resolveBuildId(options: ResolveBuildIdOptions = {}): Promi
 	if (directBuildId !== undefined) {
 		return normalizeBuildId(directBuildId)!;
 	}
-
-	const gitCommit = await tryResolve(() => readGitCommit(cwd));
-	if (gitCommit !== undefined) return gitCommit;
-
-	const packageVersion = await tryResolve(() => readPackageVersion(cwd));
-	if (packageVersion !== undefined) return packageVersion;
 
 	return "local-dev";
 }

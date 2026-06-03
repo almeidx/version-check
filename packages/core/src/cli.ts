@@ -6,15 +6,13 @@ import { writeVersionFile } from "./build-id.js";
 type GenerateOptions = {
 	readonly output: string;
 	readonly buildId?: string | undefined;
-	readonly cwd: string;
 };
 
 const usage = `Usage:
   version-check generate [output]
 
 Options:
-  --build-id <id>  Use an explicit build id instead of environment/package metadata.
-  --cwd <path>     Read package.json from this directory when falling back to package version.
+  --build-id <id>  Use an explicit build id instead of deployment environment metadata.
   -h, --help       Show this help message.
 
 The output defaults to public/version.json. If output is a directory, version.json is written inside it.`;
@@ -25,9 +23,6 @@ function parseCliArgs(args: readonly string[]): GenerateOptions | "help" {
 		allowPositionals: true,
 		options: {
 			"build-id": {
-				type: "string",
-			},
-			cwd: {
 				type: "string",
 			},
 			help: {
@@ -51,7 +46,6 @@ function parseCliArgs(args: readonly string[]): GenerateOptions | "help" {
 
 	return {
 		output: operands[0] ?? "public",
-		cwd: values.cwd ?? process.cwd(),
 		...(buildId === undefined ? {} : { buildId }),
 	};
 }

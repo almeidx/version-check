@@ -48,9 +48,6 @@ async function flushMicrotasks(): Promise<void> {
 
 describe("build id resolver", () => {
 	test("uses the explicit build id first and trims it", async () => {
-		const readGitCommit = vi.fn<(cwd: string) => Promise<string | undefined>>(async () => "git-commit");
-		const readPackageVersion = vi.fn<(cwd: string) => Promise<string | undefined>>(async () => "1.0.0");
-
 		await expect(
 			resolveBuildId({
 				buildId: " explicit-id ",
@@ -60,12 +57,8 @@ describe("build id resolver", () => {
 					VERCEL_GIT_COMMIT_SHA: "vercel-id",
 					GITHUB_SHA: "github-id",
 				},
-				readGitCommit,
-				readPackageVersion,
 			}),
 		).resolves.toBe("explicit-id");
-		expect(readGitCommit).not.toHaveBeenCalled();
-		expect(readPackageVersion).not.toHaveBeenCalled();
 	});
 
 	test("uses VERSION_CHECK_BUILD_ID before other environment sources", async () => {
@@ -77,8 +70,6 @@ describe("build id resolver", () => {
 					VERCEL_GIT_COMMIT_SHA: "vercel-id",
 					GITHUB_SHA: "github-id",
 				},
-				readGitCommit: async () => "git-commit",
-				readPackageVersion: async () => "1.0.0",
 			}),
 		).resolves.toBe("version-check-env");
 	});
@@ -92,8 +83,6 @@ describe("build id resolver", () => {
 					VERCEL_GIT_COMMIT_SHA: "vercel-id",
 					GITHUB_SHA: "github-id",
 				},
-				readGitCommit: async () => "git-commit",
-				readPackageVersion: async () => "1.0.0",
 			}),
 		).resolves.toBe("source-commit");
 	});
@@ -105,50 +94,21 @@ describe("build id resolver", () => {
 					VERCEL_GIT_COMMIT_SHA: " vercel-id ",
 					GITHUB_SHA: "github-id",
 				},
-				readGitCommit: async () => "git-commit",
-				readPackageVersion: async () => "1.0.0",
 			}),
 		).resolves.toBe("vercel-id");
 	});
 
-	test("uses GITHUB_SHA before git fallback", async () => {
-		const readGitCommit = vi.fn<(cwd: string) => Promise<string | undefined>>(async () => "git-commit");
-
+	test("uses GITHUB_SHA before local-dev", async () => {
 		await expect(
 			resolveBuildId({
 				env: {
 					GITHUB_SHA: " github-id ",
 				},
-				readGitCommit,
-				readPackageVersion: async () => "1.0.0",
 			}),
 		).resolves.toBe("github-id");
-		expect(readGitCommit).not.toHaveBeenCalled();
 	});
 
-	test("uses the git commit before package.json version", async () => {
-		await expect(
-			resolveBuildId({
-				env: {},
-				readGitCommit: async () => " git-commit ",
-				readPackageVersion: async () => "1.0.0",
-			}),
-		).resolves.toBe("git-commit");
-	});
-
-	test("falls back to package.json version when git is unavailable", async () => {
-		await expect(
-			resolveBuildId({
-				env: {},
-				readGitCommit: async () => {
-					throw new Error("git unavailable");
-				},
-				readPackageVersion: async () => " 1.2.3 ",
-			}),
-		).resolves.toBe("1.2.3");
-	});
-
-	test("uses local-dev when every source is empty or unavailable", async () => {
+	test("uses local-dev when every source is empty", async () => {
 		await expect(
 			resolveBuildId({
 				buildId: " ",
@@ -158,8 +118,6 @@ describe("build id resolver", () => {
 					VERCEL_GIT_COMMIT_SHA: "",
 					GITHUB_SHA: " ",
 				},
-				readGitCommit: async () => undefined,
-				readPackageVersion: async () => undefined,
 			}),
 		).resolves.toBe("local-dev");
 	});

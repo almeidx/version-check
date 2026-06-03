@@ -48,8 +48,7 @@ For package scripts:
 ```
 
 The generated `buildId` uses `VERSION_CHECK_BUILD_ID`, `SOURCE_COMMIT`,
-`VERCEL_GIT_COMMIT_SHA`, `GITHUB_SHA`, `git rev-parse HEAD`, the current package version, or
-`local-dev`.
+`VERCEL_GIT_COMMIT_SHA`, `GITHUB_SHA`, or `local-dev`.
 
 ## Vanilla JS
 
@@ -100,6 +99,10 @@ For TypeScript, include the virtual module declarations in your app env file:
 ```ts
 import "@almeidx/version-check-vite/virtual";
 ```
+
+By default, the Vite plugin resolves the build id from deployment environment variables only. Use
+`buildId` or `resolveBuildId` when you want an explicit value from another source. The virtual module
+is the default client API; set `define: true` only if you explicitly want a global Vite constant.
 
 ## React
 
