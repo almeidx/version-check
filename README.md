@@ -197,10 +197,11 @@ createVersionChecker({
 The checker polls every `intervalMs` (default 30 minutes) and also re-checks on window focus, network
 reconnect, and the tab becoming visible. A few options tune this:
 
-- `pauseWhenHidden` (default `true`) pauses the interval while the tab is hidden and checks once it
-  becomes visible again, instead of polling a backgrounded tab.
-- `minIntervalMs` (default `0`) sets a minimum gap between lifecycle-triggered checks. Bursts of
-  focus/online/visibility events are always collapsed to a single in-flight check regardless.
+- `pauseWhenHidden` (default `true`) pauses the interval while the tab is hidden and checks when it
+  becomes visible again if the lifecycle cooldown has elapsed, instead of polling a backgrounded tab.
+- `minIntervalMs` (default 1 minute) sets a minimum gap between lifecycle-triggered checks. Set it to
+  `0` to disable the cooldown. Bursts of focus/online/visibility events are always collapsed to a
+  single in-flight check regardless.
 - `refetchOnWindowFocus`, `refetchOnReconnect`, and `refetchOnVisibilityChange` (each default `true`)
   turn off individual triggers.
 

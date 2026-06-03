@@ -28,7 +28,7 @@ function refreshPage() {
 <button v-if="state.updateAvailable" type="button" @click="refreshPage">Refresh to update</button>
 ```
 
-The composable polls only in the browser, disposes automatically with the surrounding Vue effect scope, and returns `check()` for an immediate manual check.
+The composable polls only in the browser, disposes automatically with the surrounding Vue effect scope, and returns `check()` for an immediate manual check. It uses the shared core lifecycle defaults, including a one-minute `minIntervalMs` cooldown for focus, reconnect, and visibility-triggered checks.
 
 ## Version endpoint
 

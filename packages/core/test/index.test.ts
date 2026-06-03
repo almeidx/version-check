@@ -1,6 +1,12 @@
 import { describe, expect, test, vi } from "vitest";
 import { fetchJsonVersion } from "../src/fetch-json-version.js";
-import { VersionCheckError, createVersionChecker, isUpdateAvailable, resolveVersionId } from "../src/index.js";
+import {
+	VersionCheckError,
+	createVersionChecker,
+	defaultLifecycleMinIntervalMs,
+	isUpdateAvailable,
+	resolveVersionId,
+} from "../src/index.js";
 
 class FakeEventTarget {
 	private readonly listeners = new Map<string, Set<EventListener>>();
@@ -133,6 +139,7 @@ describe("createVersionChecker", () => {
 			currentVersion: "1",
 			intervalMs: 0,
 			checkImmediately: false,
+			minIntervalMs: 0,
 			getWindow: () => fakeWindow as unknown as Window,
 			fetcher: async () => {
 				checks += 1;
@@ -252,6 +259,41 @@ describe("createVersionChecker", () => {
 		expect(statuses.filter((status) => status === "update-available")).toHaveLength(1);
 	});
 
+	test("throttles lifecycle checks by default", async () => {
+		const fakeWindow = new FakeWindow();
+		let clock = 0;
+		let checks = 0;
+		const checker = createVersionChecker({
+			currentVersion: "1",
+			intervalMs: 0,
+			checkImmediately: false,
+			getWindow: () => fakeWindow as unknown as Window,
+			now: () => clock,
+			fetcher: async () => {
+				checks += 1;
+				return "1";
+			},
+		});
+
+		checker.start();
+
+		fakeWindow.dispatch("focus");
+		await flushMicrotasks();
+		expect(checks).toBe(1);
+
+		clock = defaultLifecycleMinIntervalMs - 1;
+		fakeWindow.dispatch("online");
+		await flushMicrotasks();
+		expect(checks).toBe(1);
+
+		clock = defaultLifecycleMinIntervalMs;
+		fakeWindow.dispatch("online");
+		await flushMicrotasks();
+		expect(checks).toBe(2);
+
+		checker.stop();
+	});
+
 	test("throttles lifecycle checks with minIntervalMs", async () => {
 		const fakeWindow = new FakeWindow();
 		let clock = 0;
@@ -297,6 +339,7 @@ describe("createVersionChecker", () => {
 			currentVersion: "1",
 			intervalMs: 1000,
 			checkImmediately: false,
+			minIntervalMs: 0,
 			getWindow: () => fakeWindow as unknown as Window,
 			fetcher: async () => {
 				checks += 1;

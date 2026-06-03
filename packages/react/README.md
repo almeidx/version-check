@@ -38,7 +38,7 @@ export function VersionBanner({ currentVersion }: { currentVersion: string }) {
 }
 ```
 
-The hook starts polling on mount, stops on unmount, and returns the current checker state plus `check()` for an immediate manual check.
+The hook starts polling on mount, stops on unmount, and returns the current checker state plus `check()` for an immediate manual check. It uses the shared core lifecycle defaults, including a one-minute `minIntervalMs` cooldown for focus, reconnect, and visibility-triggered checks.
 
 ## Version endpoint
 

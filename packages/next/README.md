@@ -70,6 +70,8 @@ export function VersionBanner({ initialVersion }: { initialVersion: string }) {
 }
 ```
 
+The client hook uses the shared core lifecycle defaults, including a one-minute `minIntervalMs` cooldown for focus, reconnect, and visibility-triggered checks.
+
 ## Exports
 
 - `getNextBuildId`

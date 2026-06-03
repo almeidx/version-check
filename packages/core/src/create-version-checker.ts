@@ -1,5 +1,5 @@
 import { isUpdateAvailable, type VersionComparator } from "./compare.js";
-import { defaultPollIntervalMs, defaultVersionEndpoint } from "./constants.js";
+import { defaultLifecycleMinIntervalMs, defaultPollIntervalMs, defaultVersionEndpoint } from "./constants.js";
 import { fetchJsonVersion, type VersionFetcher } from "./fetch-json-version.js";
 import type { VersionPayload } from "./version-payload.js";
 
@@ -77,7 +77,7 @@ export interface VersionCheckOptions<TLatest extends VersionPayload = VersionPay
 	 * such events arriving within this window trigger only a single check. The in-flight guard
 	 * prevents overlapping lifecycle checks regardless of this value.
 	 *
-	 * @defaultValue `0`
+	 * @defaultValue {@link defaultLifecycleMinIntervalMs} (1 minute)
 	 */
 	readonly minIntervalMs?: number | undefined;
 	/**
@@ -209,7 +209,7 @@ export function createVersionChecker<TLatest extends VersionPayload = VersionPay
 ): VersionChecker<TLatest> {
 	const endpoint = options.endpoint ?? defaultVersionEndpoint;
 	const intervalMs = options.intervalMs ?? defaultPollIntervalMs;
-	const minIntervalMs = options.minIntervalMs ?? 0;
+	const minIntervalMs = options.minIntervalMs ?? defaultLifecycleMinIntervalMs;
 	const pauseWhenHidden = options.pauseWhenHidden !== false;
 	const now = options.now ?? Date.now;
 	const listeners = new Set<VersionCheckListener<TLatest>>();

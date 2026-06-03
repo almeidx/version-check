@@ -57,10 +57,19 @@ checker.subscribe((state) => {
 checker.start();
 ```
 
+## Polling behavior
+
+The checker polls every `intervalMs` (default 30 minutes) and also re-checks on window focus, network reconnect, and the tab becoming visible.
+
+- `pauseWhenHidden` (default `true`) pauses the interval while the tab is hidden and checks when it becomes visible again if the lifecycle cooldown has elapsed.
+- `minIntervalMs` (default 1 minute) sets a minimum gap between lifecycle-triggered checks. Set it to `0` to disable the cooldown.
+- `refetchOnWindowFocus`, `refetchOnReconnect`, and `refetchOnVisibilityChange` (each default `true`) turn off individual triggers.
+
 ## Exports
 
 - `createVersionChecker`
 - `compareVersions`
+- `defaultLifecycleMinIntervalMs`
 - `fetchJsonVersion`
 - `VersionCheckError`
 - Version payload and checker option/state types
