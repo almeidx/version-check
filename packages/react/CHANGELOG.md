@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0-next.2] - 2026-06-03
+
+- Add Vite plugin for version checks
+- Set default lifecycle recheck cooldown to one minute
+
 ## [0.2.0-next.1] - 2026-06-03
 
 - Remove root version.json artifact
