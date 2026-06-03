@@ -66,7 +66,7 @@ jobs:
             fi
           fi
 
-          VERSION="$(node scripts/version-packages.mjs "$BUMP" "$PREID")"
+          VERSION="$(node .github/scripts/version-packages.mjs "$BUMP" "$PREID")"
           pnpm install --lockfile-only
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 

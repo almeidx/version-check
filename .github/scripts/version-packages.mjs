@@ -6,7 +6,7 @@ const supportedBumps = ["patch", "minor", "major", "prepatch", "preminor", "prem
 
 if (!supportedBumps.includes(bump)) {
 	console.error(
-		"Usage: node scripts/version-packages.mjs <patch|minor|major|prepatch|preminor|premajor|prerelease> [preid]",
+		"Usage: node .github/scripts/version-packages.mjs <patch|minor|major|prepatch|preminor|premajor|prerelease> [preid]",
 	);
 	process.exit(1);
 }
