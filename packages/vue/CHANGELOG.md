@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0-next.0] - 2026-06-03
+
+- Add package changelogs
+- Add package readmes and metadata
+
 ## [0.2.0-next.0] - 2026-06-02
 
 - Harden version checker, refine adapters, document and reorganize core
