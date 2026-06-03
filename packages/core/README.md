@@ -36,7 +36,7 @@ For package scripts:
 }
 ```
 
-The generated `buildId` uses `VERSION_CHECK_BUILD_ID`, `VERCEL_GIT_COMMIT_SHA`, `GITHUB_SHA`, or the current package version.
+The generated `buildId` uses `VERSION_CHECK_BUILD_ID`, `SOURCE_COMMIT`, `VERCEL_GIT_COMMIT_SHA`, `GITHUB_SHA`, `git rev-parse HEAD`, the current package version, or `local-dev`.
 
 ## Usage
 
@@ -73,6 +73,7 @@ The checker polls every `intervalMs` (default 30 minutes) and also re-checks on 
 - `fetchJsonVersion`
 - `VersionCheckError`
 - Version payload and checker option/state types
+- Node-only `@almeidx/version-check/build`: `resolveBuildId`, `writeVersionFile`, `createVersionFileContent`
 
 ## License
 

@@ -3,10 +3,17 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
 	resolve: {
-		alias: {
-			// Resolve the workspace package to its source so cross-package tests run without a build.
-			"@almeidx/version-check": fileURLToPath(new URL("./packages/core/src/index.ts", import.meta.url)),
-		},
+		alias: [
+			// Resolve workspace packages to source so cross-package tests run without a build.
+			{
+				find: "@almeidx/version-check/build",
+				replacement: fileURLToPath(new URL("./packages/core/src/build-id.ts", import.meta.url)),
+			},
+			{
+				find: "@almeidx/version-check",
+				replacement: fileURLToPath(new URL("./packages/core/src/index.ts", import.meta.url)),
+			},
+		],
 	},
 	test: {
 		coverage: {

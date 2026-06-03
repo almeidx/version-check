@@ -63,6 +63,9 @@ importers:
       '@almeidx/version-check-react':
         specifier: workspace:*
         version: link:../../packages/react
+      '@almeidx/version-check-vite':
+        specifier: workspace:*
+        version: link:../../packages/vite
       '@vitejs/plugin-react':
         specifier: ^6.0.2
         version: 6.0.2(vite@8.0.14(@types/node@24.12.4))
@@ -88,6 +91,9 @@ importers:
 
   examples/vue-vite:
     dependencies:
+      '@almeidx/version-check-vite':
+        specifier: workspace:*
+        version: link:../../packages/vite
       '@almeidx/version-check-vue':
         specifier: workspace:*
         version: link:../../packages/vue
@@ -169,6 +175,28 @@ importers:
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+
+  packages/vite:
+    dependencies:
+      '@almeidx/version-check':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@types/node':
+        specifier: ^24.12.4
+        version: 24.12.4
+      tsdown:
+        specifier: ^0.22.1
+        version: 0.22.1(typescript@6.0.3)
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      vite:
+        specifier: ^8.0.14
+        version: 8.0.14(@types/node@24.12.4)
+      vitest:
+        specifier: ^4.1.7
+        version: 4.1.7(@types/node@24.12.4)(vite@8.0.14(@types/node@24.12.4))
 
   packages/vue:
     dependencies:

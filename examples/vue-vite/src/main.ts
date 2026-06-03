@@ -1,8 +1,7 @@
 import { useVersionCheck } from "@almeidx/version-check-vue";
+import currentVersion from "virtual:version-check/build-id";
 import { createApp, defineComponent, h } from "vue";
 import "./style.css";
-
-const currentVersion = import.meta.env.VITE_VERSION_CHECK_BUILD_ID ?? __VERSION_CHECK_BUILD_ID__;
 
 function refreshPage() {
 	window.location.reload();

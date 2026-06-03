@@ -5,12 +5,12 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"prebuild": "version-check generate public",
 		"build": "tsc --noEmit -p tsconfig.json && vite build",
 		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
 		"@almeidx/version-check-react": "workspace:*",
+		"@almeidx/version-check-vite": "workspace:*",
 		"@vitejs/plugin-react": "^6.0.2",
 		"react": "^19.2.6",
 		"react-dom": "^19.2.6",

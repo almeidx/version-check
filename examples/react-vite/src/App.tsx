@@ -1,6 +1,5 @@
 import { useVersionCheck } from "@almeidx/version-check-react";
-
-const currentVersion = import.meta.env.VITE_VERSION_CHECK_BUILD_ID ?? __VERSION_CHECK_BUILD_ID__;
+import currentVersion from "virtual:version-check/build-id";
 
 function refreshPage() {
 	window.location.reload();

@@ -5,11 +5,11 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"prebuild": "version-check generate public",
 		"build": "tsc --noEmit -p tsconfig.json && vite build",
 		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
+		"@almeidx/version-check-vite": "workspace:*",
 		"@almeidx/version-check-vue": "workspace:*",
 		"@vitejs/plugin-vue": "^6.0.7",
 		"vite": "^8.0.14",

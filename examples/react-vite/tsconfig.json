@@ -4,7 +4,10 @@
 		"types": ["vite/client", "node"],
 		"paths": {
 			"@almeidx/version-check": ["../../packages/core/src/index.ts"],
-			"@almeidx/version-check-react": ["../../packages/react/src/index.ts"]
+			"@almeidx/version-check/build": ["../../packages/core/src/build-id.ts"],
+			"@almeidx/version-check-react": ["../../packages/react/src/index.ts"],
+			"@almeidx/version-check-vite": ["../../packages/vite/src/index.ts"],
+			"@almeidx/version-check-vite/virtual": ["../../packages/vite/src/virtual.d.ts"]
 		}
 	},
 	"include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"]

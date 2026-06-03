@@ -120,6 +120,7 @@ jobs:
           test -f "$TARBALL_DIR/almeidx-version-check-react-${VERSION}.tgz"
           test -f "$TARBALL_DIR/almeidx-version-check-vue-${VERSION}.tgz"
           test -f "$TARBALL_DIR/almeidx-version-check-next-${VERSION}.tgz"
+          test -f "$TARBALL_DIR/almeidx-version-check-vite-${VERSION}.tgz"
           echo "TARBALL_DIR=$TARBALL_DIR" >> "$GITHUB_ENV"
 
       - name: Publish to npm
@@ -131,6 +132,7 @@ jobs:
           npm publish "$TARBALL_DIR/almeidx-version-check-react-${VERSION}.tgz" --access public --tag "$NPM_TAG"
           npm publish "$TARBALL_DIR/almeidx-version-check-vue-${VERSION}.tgz" --access public --tag "$NPM_TAG"
           npm publish "$TARBALL_DIR/almeidx-version-check-next-${VERSION}.tgz" --access public --tag "$NPM_TAG"
+          npm publish "$TARBALL_DIR/almeidx-version-check-vite-${VERSION}.tgz" --access public --tag "$NPM_TAG"
 
       - name: Configure Git
         run: |

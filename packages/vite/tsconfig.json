@@ -1,0 +1,12 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"paths": {
+			"@almeidx/version-check": ["../core/src/index.ts"],
+			"@almeidx/version-check/build": ["../core/src/build-id.ts"],
+			"@almeidx/version-check/cli": ["../core/src/cli.ts"]
+		},
+		"types": ["node"]
+	},
+	"include": ["src/**/*.ts", "test/**/*.ts"]
+}

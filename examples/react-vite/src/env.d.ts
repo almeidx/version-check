@@ -1,1 +1,1 @@
-declare const __VERSION_CHECK_BUILD_ID__: string;
+import "@almeidx/version-check-vite/virtual";

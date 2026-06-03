@@ -17,6 +17,7 @@ const packageJsonPaths = [
 	"packages/react/package.json",
 	"packages/next/package.json",
 	"packages/vue/package.json",
+	"packages/vite/package.json",
 ];
 
 function parseVersion(version) {

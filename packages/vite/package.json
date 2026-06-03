@@ -1,18 +1,19 @@
 {
-	"name": "@almeidx/version-check",
+	"name": "@almeidx/version-check-vite",
 	"version": "0.2.0-next.1",
-	"description": "Headless web app version/update detector.",
+	"description": "Vite plugin for @almeidx/version-check.",
 	"keywords": [
 		"build-id",
 		"deployment",
 		"esm",
 		"frontend",
-		"polling",
 		"typescript",
 		"update-detector",
-		"version-check"
+		"version-check",
+		"vite",
+		"vite-plugin"
 	],
-	"homepage": "https://github.com/almeidx/version-check/tree/main/packages/core#readme",
+	"homepage": "https://github.com/almeidx/version-check/tree/main/packages/vite#readme",
 	"bugs": {
 		"url": "https://github.com/almeidx/version-check/issues"
 	},
@@ -21,7 +22,7 @@
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/almeidx/version-check.git",
-		"directory": "packages/core"
+		"directory": "packages/vite"
 	},
 	"bin": {
 		"version-check": "./bin/version-check.mjs"
@@ -42,17 +43,9 @@
 				"default": "./dist/index.mjs"
 			}
 		},
-		"./cli": {
-			"import": {
-				"types": "./dist/cli.d.mts",
-				"default": "./dist/cli.mjs"
-			}
-		},
-		"./build": {
-			"import": {
-				"types": "./dist/build-id.d.mts",
-				"default": "./dist/build-id.mjs"
-			}
+		"./virtual": {
+			"types": "./dist/virtual.d.ts",
+			"default": "./dist/virtual.mjs"
 		}
 	},
 	"publishConfig": {
@@ -64,10 +57,17 @@
 		"dev": "tsdown --watch",
 		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
+	"dependencies": {
+		"@almeidx/version-check": "workspace:*"
+	},
 	"devDependencies": {
 		"@types/node": "^24.12.4",
 		"tsdown": "^0.22.1",
 		"typescript": "^6.0.3",
+		"vite": "^8.0.14",
 		"vitest": "^4.1.7"
+	},
+	"peerDependencies": {
+		"vite": ">=5"
 	}
 }

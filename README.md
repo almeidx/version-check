@@ -15,6 +15,7 @@ message.
 | `@almeidx/version-check-react` | React hook                                          |
 | `@almeidx/version-check-next`  | Next.js build id route helper and client hook       |
 | `@almeidx/version-check-vue`   | Vue composable                                      |
+| `@almeidx/version-check-vite`  | Vite build id plugin and virtual module             |
 
 Framework packages re-export the core API and expose the `version-check` CLI, so apps only need to
 install the package they use.
@@ -46,8 +47,9 @@ For package scripts:
 }
 ```
 
-The generated `buildId` uses `VERSION_CHECK_BUILD_ID`, `VERCEL_GIT_COMMIT_SHA`,
-`GITHUB_SHA`, or the current package version.
+The generated `buildId` uses `VERSION_CHECK_BUILD_ID`, `SOURCE_COMMIT`,
+`VERCEL_GIT_COMMIT_SHA`, `GITHUB_SHA`, `git rev-parse HEAD`, the current package version, or
+`local-dev`.
 
 ## Vanilla JS
 
@@ -66,6 +68,37 @@ checker.subscribe((state) => {
 });
 
 checker.start();
+```
+
+## Vite
+
+Use the Vite plugin as the single source of truth for the client build id and `/version.json`.
+
+```ts
+// vite.config.ts
+import { versionCheck } from "@almeidx/version-check-vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+	plugins: [versionCheck()],
+});
+```
+
+Read the same id from the virtual module in client code:
+
+```ts
+import buildId from "virtual:version-check/build-id";
+import { createVersionChecker } from "@almeidx/version-check";
+
+const checker = createVersionChecker({
+	currentVersion: buildId,
+});
+```
+
+For TypeScript, include the virtual module declarations in your app env file:
+
+```ts
+import "@almeidx/version-check-vite/virtual";
 ```
 
 ## React

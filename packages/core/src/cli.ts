@@ -1,8 +1,7 @@
 #!/usr/bin/env node
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, extname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { parseArgs as parseNodeArgs } from "node:util";
+import { writeVersionFile } from "./build-id.js";
 
 type GenerateOptions = {
 	readonly output: string;
@@ -57,49 +56,6 @@ function parseCliArgs(args: readonly string[]): GenerateOptions | "help" {
 	};
 }
 
-async function readPackageVersion(cwd: string): Promise<string | undefined> {
-	try {
-		const packageJson = JSON.parse(await readFile(join(cwd, "package.json"), "utf8")) as { version?: unknown };
-		return typeof packageJson.version === "string" && packageJson.version.trim().length > 0
-			? packageJson.version.trim()
-			: undefined;
-	} catch {
-		return undefined;
-	}
-}
-
-async function resolveBuildId(options: GenerateOptions): Promise<string> {
-	const candidates = [
-		options.buildId,
-		process.env.VERSION_CHECK_BUILD_ID,
-		process.env.VERCEL_GIT_COMMIT_SHA,
-		process.env.GITHUB_SHA,
-		await readPackageVersion(options.cwd),
-	];
-
-	for (const candidate of candidates) {
-		if (typeof candidate === "string" && candidate.trim().length > 0) {
-			return candidate.trim();
-		}
-	}
-
-	return "local-dev";
-}
-
-function resolveOutputFile(output: string): string {
-	return extname(output) === ".json" ? output : join(output, "version.json");
-}
-
-async function generateVersionFile(options: GenerateOptions): Promise<string> {
-	const outputFile = resolveOutputFile(options.output);
-	const buildId = await resolveBuildId(options);
-
-	await mkdir(dirname(outputFile), { recursive: true });
-	await writeFile(outputFile, `${JSON.stringify({ buildId }, null, "\t")}\n`);
-
-	return outputFile;
-}
-
 /**
  * Runs the `version-check` CLI, which generates a `version.json` file containing a build id.
  *
@@ -115,7 +71,7 @@ export async function runCli(args: readonly string[] = process.argv.slice(2)): P
 			return 0;
 		}
 
-		const outputFile = await generateVersionFile(options);
+		const outputFile = await writeVersionFile(options);
 		console.log(`Wrote ${outputFile}`);
 		return 0;
 	} catch (error) {
