@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0-next.1] - 2026-06-03
+
+- Remove root version.json artifact
+- Add package changelogs
+- Add package readmes and metadata
+
 ## [0.2.0-next.0] - 2026-06-02
 
 - Harden version checker, refine adapters, document and reorganize core
