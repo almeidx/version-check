@@ -68,7 +68,7 @@ The checker polls every `intervalMs` (default 30 minutes) and also re-checks on 
 ## Exports
 
 - `createVersionChecker`
-- `compareVersions`
+- `isUpdateAvailable`
 - `defaultLifecycleMinIntervalMs`
 - `fetchJsonVersion`
 - `VersionCheckError`
