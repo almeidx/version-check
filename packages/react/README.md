@@ -52,7 +52,7 @@ The default endpoint is `/version.json`. Generate it during builds with the incl
 }
 ```
 
-The CLI reads deployment environment variables by default: `VERSION_CHECK_BUILD_ID`, `SOURCE_COMMIT`, `VERCEL_GIT_COMMIT_SHA`, and `GITHUB_SHA`. Pass `--build-id` when you want an explicit value.
+The CLI reads deployment environment variables by default: `VERSION_CHECK_BUILD_ID`, `SOURCE_COMMIT`, `VERCEL_GIT_COMMIT_SHA`, `CI_COMMIT_SHA`, and `GITHUB_SHA`. Pass `--build-id` when you want an explicit value.
 
 ## License
 

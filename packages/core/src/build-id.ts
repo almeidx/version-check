@@ -6,6 +6,7 @@ export type BuildIdEnvironment = {
 	readonly VERSION_CHECK_BUILD_ID?: string | undefined;
 	readonly SOURCE_COMMIT?: string | undefined;
 	readonly VERCEL_GIT_COMMIT_SHA?: string | undefined;
+	readonly CI_COMMIT_SHA?: string | undefined;
 	readonly GITHUB_SHA?: string | undefined;
 };
 
@@ -36,7 +37,7 @@ function normalizeBuildId(candidate: string | undefined): string | undefined {
  * Resolves the current deployment build id.
  *
  * Precedence: explicit `buildId`, `VERSION_CHECK_BUILD_ID`, `SOURCE_COMMIT`,
- * `VERCEL_GIT_COMMIT_SHA`, `GITHUB_SHA`, then `"local-dev"`.
+ * `VERCEL_GIT_COMMIT_SHA`, `CI_COMMIT_SHA`, `GITHUB_SHA`, then `"local-dev"`.
  */
 export async function resolveBuildId(options: ResolveBuildIdOptions = {}): Promise<string> {
 	const env = options.env ?? process.env;
@@ -45,6 +46,7 @@ export async function resolveBuildId(options: ResolveBuildIdOptions = {}): Promi
 		env.VERSION_CHECK_BUILD_ID,
 		env.SOURCE_COMMIT,
 		env.VERCEL_GIT_COMMIT_SHA,
+		env.CI_COMMIT_SHA,
 		env.GITHUB_SHA,
 	].find((candidate) => normalizeBuildId(candidate) !== undefined);
 

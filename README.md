@@ -48,7 +48,7 @@ For package scripts:
 ```
 
 The generated `buildId` uses `VERSION_CHECK_BUILD_ID`, `SOURCE_COMMIT`,
-`VERCEL_GIT_COMMIT_SHA`, `GITHUB_SHA`, or `local-dev`.
+`VERCEL_GIT_COMMIT_SHA`, `CI_COMMIT_SHA`, `GITHUB_SHA`, or `local-dev`.
 
 ## Vanilla JS
 

@@ -55,6 +55,7 @@ describe("build id resolver", () => {
 					VERSION_CHECK_BUILD_ID: "env-id",
 					SOURCE_COMMIT: "source-id",
 					VERCEL_GIT_COMMIT_SHA: "vercel-id",
+					CI_COMMIT_SHA: "gitlab-id",
 					GITHUB_SHA: "github-id",
 				},
 			}),
@@ -68,6 +69,7 @@ describe("build id resolver", () => {
 					VERSION_CHECK_BUILD_ID: " version-check-env ",
 					SOURCE_COMMIT: "source-id",
 					VERCEL_GIT_COMMIT_SHA: "vercel-id",
+					CI_COMMIT_SHA: "gitlab-id",
 					GITHUB_SHA: "github-id",
 				},
 			}),
@@ -81,21 +83,34 @@ describe("build id resolver", () => {
 					VERSION_CHECK_BUILD_ID: " ",
 					SOURCE_COMMIT: " source-commit ",
 					VERCEL_GIT_COMMIT_SHA: "vercel-id",
+					CI_COMMIT_SHA: "gitlab-id",
 					GITHUB_SHA: "github-id",
 				},
 			}),
 		).resolves.toBe("source-commit");
 	});
 
-	test("uses VERCEL_GIT_COMMIT_SHA before GITHUB_SHA", async () => {
+	test("uses VERCEL_GIT_COMMIT_SHA before GitLab and GitHub sources", async () => {
 		await expect(
 			resolveBuildId({
 				env: {
 					VERCEL_GIT_COMMIT_SHA: " vercel-id ",
+					CI_COMMIT_SHA: "gitlab-id",
 					GITHUB_SHA: "github-id",
 				},
 			}),
 		).resolves.toBe("vercel-id");
+	});
+
+	test("uses CI_COMMIT_SHA before GITHUB_SHA", async () => {
+		await expect(
+			resolveBuildId({
+				env: {
+					CI_COMMIT_SHA: " gitlab-id ",
+					GITHUB_SHA: "github-id",
+				},
+			}),
+		).resolves.toBe("gitlab-id");
 	});
 
 	test("uses GITHUB_SHA before local-dev", async () => {
@@ -116,6 +131,7 @@ describe("build id resolver", () => {
 					VERSION_CHECK_BUILD_ID: "",
 					SOURCE_COMMIT: " ",
 					VERCEL_GIT_COMMIT_SHA: "",
+					CI_COMMIT_SHA: " ",
 					GITHUB_SHA: " ",
 				},
 			}),

@@ -49,7 +49,7 @@ The plugin emits `dist/version.json` during builds and serves `/version.json` du
 }
 ```
 
-The generated `buildId` uses an explicit `buildId` or `resolveBuildId` option, `VERSION_CHECK_BUILD_ID`, `SOURCE_COMMIT`, `VERCEL_GIT_COMMIT_SHA`, `GITHUB_SHA`, or `local-dev`.
+The generated `buildId` uses an explicit `buildId` or `resolveBuildId` option, `VERSION_CHECK_BUILD_ID`, `SOURCE_COMMIT`, `VERCEL_GIT_COMMIT_SHA`, `CI_COMMIT_SHA`, `GITHUB_SHA`, or `local-dev`.
 
 ## Options
 

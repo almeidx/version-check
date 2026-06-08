@@ -98,6 +98,7 @@ describe("versionCheck", () => {
 		vi.stubEnv("VERSION_CHECK_BUILD_ID", "");
 		vi.stubEnv("SOURCE_COMMIT", "");
 		vi.stubEnv("VERCEL_GIT_COMMIT_SHA", "");
+		vi.stubEnv("CI_COMMIT_SHA", "");
 		vi.stubEnv("GITHUB_SHA", "");
 		const root = await createTemporaryDirectory();
 		await writeProjectFile(root, "package.json", `${JSON.stringify({ version: "9.9.9" }, null, "\t")}\n`);
