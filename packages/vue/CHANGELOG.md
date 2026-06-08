@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0-next.4] - 2026-06-08
+
+- Fix core README export name
+- Add CI_COMMIT_SHA to build id resolution
+
 ## [0.2.0-next.3] - 2026-06-03
 
 - refactor: make build id resolution env-only
