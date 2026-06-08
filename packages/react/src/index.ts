@@ -4,11 +4,15 @@ export * from "@almeidx/version-check";
 
 import {
 	createVersionChecker,
+	fetchJsonVersion,
+	isUpdateAvailable,
+	type VersionComparator,
 	type VersionCheckOptions,
 	type VersionCheckState,
+	type VersionFetcher,
 	type VersionPayload,
 } from "@almeidx/version-check";
-import { useCallback, useEffect, useMemo, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 
 /** Options for {@link useVersionCheck}: {@link VersionCheckOptions} without `autoStart` (the hook owns the lifecycle). */
 export type UseVersionCheckOptions<TLatest extends VersionPayload = VersionPayload> = Omit<
@@ -26,8 +30,8 @@ export type UseVersionCheckResult<TLatest extends VersionPayload = VersionPayloa
  * Subscribes to a {@link createVersionChecker} for the lifetime of the component and returns its
  * latest {@link VersionCheckState} along with a manual {@link UseVersionCheckResult.check | check} trigger.
  *
- * Polling starts on mount and stops on unmount. The checker is recreated when its options change;
- * memoize object and function options if you need to keep the checker identity stable.
+ * Polling starts on mount and stops on unmount. The checker is recreated when lifecycle options
+ * change; fetch and comparison callbacks are read from the latest render without restarting.
  *
  * @example
  * ```tsx
@@ -58,6 +62,29 @@ export function useVersionCheck<TLatest extends VersionPayload = VersionPayload>
 		requestInit,
 	} = options;
 
+	const latestOptions = { compare, fetch, fetcher, now, requestInit };
+	const latestOptionsRef = useRef(latestOptions);
+	latestOptionsRef.current = latestOptions;
+
+	const latestFetcher = useCallback<VersionFetcher<TLatest>>(async (context) => {
+		const { fetch, fetcher, requestInit } = latestOptionsRef.current;
+		const nextContext = { ...context, fetch, requestInit };
+
+		if (fetcher !== undefined) {
+			return fetcher(nextContext);
+		}
+
+		return fetchJsonVersion<TLatest>(nextContext);
+	}, []);
+
+	const latestCompare = useCallback<VersionComparator<TLatest>>(
+		({ currentVersion, latestVersion }) =>
+			isUpdateAvailable(currentVersion, latestVersion, latestOptionsRef.current.compare),
+		[],
+	);
+
+	const latestNow = useCallback(() => latestOptionsRef.current.now?.() ?? Date.now(), []);
+
 	const checker = useMemo(
 		() =>
 			createVersionChecker<TLatest>({
@@ -66,34 +93,30 @@ export function useVersionCheck<TLatest extends VersionPayload = VersionPayload>
 				endpoint,
 				intervalMs,
 				minIntervalMs,
-				fetcher,
-				compare,
-				requestInit,
+				fetcher: latestFetcher,
+				compare: latestCompare,
 				checkImmediately,
 				pauseWhenHidden,
 				refetchOnWindowFocus,
 				refetchOnVisibilityChange,
 				refetchOnReconnect,
-				fetch,
 				getWindow,
-				now,
+				now: latestNow,
 			}),
 		[
 			currentVersion,
 			endpoint,
 			intervalMs,
 			minIntervalMs,
-			fetcher,
-			compare,
-			requestInit,
+			latestFetcher,
+			latestCompare,
 			checkImmediately,
 			pauseWhenHidden,
 			refetchOnWindowFocus,
 			refetchOnVisibilityChange,
 			refetchOnReconnect,
-			fetch,
 			getWindow,
-			now,
+			latestNow,
 		],
 	);
 
