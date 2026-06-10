@@ -73,7 +73,7 @@ The checker polls every `intervalMs` (default 30 minutes) and also re-checks on 
 - `fetchJsonVersion`
 - `VersionCheckError`
 - Version payload and checker option/state types
-- Node-only `@almeidx/version-check/build`: `resolveBuildId`, `writeVersionFile`, `createVersionFileContent`
+- Node-only `@almeidx/version-check/build`: `resolveBuildId`, `writeVersionFile`, `createVersionFileContent`, `normalizeBuildId`
 
 ## License
 

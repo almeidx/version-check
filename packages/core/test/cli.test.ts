@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { createVersionFileContent, writeVersionFile } from "../src/build-id.js";
+import { createVersionFileContent, normalizeBuildId, writeVersionFile } from "../src/build-id.js";
 import { runCli } from "../src/cli.js";
 
 describe("writeVersionFile", () => {
@@ -45,6 +45,21 @@ describe("writeVersionFile", () => {
 describe("createVersionFileContent", () => {
 	test("produces tab-indented JSON with a trailing newline", () => {
 		expect(createVersionFileContent("x")).toBe('{\n\t"buildId": "x"\n}\n');
+	});
+});
+
+describe("normalizeBuildId", () => {
+	test("trims surrounding whitespace", () => {
+		expect(normalizeBuildId("  build-1 ")).toBe("build-1");
+	});
+
+	test("maps empty and whitespace-only values to undefined", () => {
+		expect(normalizeBuildId("")).toBeUndefined();
+		expect(normalizeBuildId("   ")).toBeUndefined();
+	});
+
+	test("maps undefined to undefined", () => {
+		expect(normalizeBuildId(undefined)).toBeUndefined();
 	});
 });
 

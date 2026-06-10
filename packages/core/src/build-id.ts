@@ -28,7 +28,8 @@ export type WriteVersionFileOptions = ResolveBuildIdOptions & {
 	readonly output: string;
 };
 
-function normalizeBuildId(candidate: string | undefined): string | undefined {
+/** Normalizes a candidate build id: trims it, mapping missing or blank values to `undefined`. */
+export function normalizeBuildId(candidate: string | undefined): string | undefined {
 	const normalized = candidate?.trim();
 	return normalized === undefined || normalized.length === 0 ? undefined : normalized;
 }

@@ -1,7 +1,11 @@
 export * from "@almeidx/version-check";
 
 import { resolve as resolvePath } from "node:path";
-import { createVersionFileContent, resolveBuildId as resolveCoreBuildId } from "@almeidx/version-check/build";
+import {
+	createVersionFileContent,
+	normalizeBuildId,
+	resolveBuildId as resolveCoreBuildId,
+} from "@almeidx/version-check/build";
 import type { Plugin, UserConfig } from "vite";
 
 const defaultFileName = "version.json";
@@ -61,11 +65,6 @@ function normalizeFileName(fileName: string | undefined): string {
 function resolveDefineName(define: VersionCheckViteOptions["define"]): string | undefined {
 	if (define === true) return defaultDefineName;
 	return typeof define === "string" ? define : undefined;
-}
-
-function normalizeBuildId(buildId: string | undefined): string | undefined {
-	const normalized = buildId?.trim();
-	return normalized === undefined || normalized.length === 0 ? undefined : normalized;
 }
 
 /**
