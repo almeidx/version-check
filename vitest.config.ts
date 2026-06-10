@@ -6,6 +6,10 @@ export default defineConfig({
 		alias: [
 			// Resolve workspace packages to source so cross-package tests run without a build.
 			{
+				find: "@almeidx/version-check-react",
+				replacement: fileURLToPath(new URL("./packages/react/src/index.ts", import.meta.url)),
+			},
+			{
 				find: "@almeidx/version-check/build",
 				replacement: fileURLToPath(new URL("./packages/core/src/build-id.ts", import.meta.url)),
 			},
