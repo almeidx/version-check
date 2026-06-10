@@ -25,9 +25,10 @@
 		"test": "vitest run",
 		"build:typecheck": "pnpm -r typecheck",
 		"lint": "oxfmt --check && oxlint --import-plugin --react-plugin --vitest-plugin --jsx-a11y-plugin --vue-plugin",
+		"publint": "pnpm -r --filter './packages/*' exec publint",
 		"fmt": "oxfmt --write && oxlint --fix --import-plugin --react-plugin --vitest-plugin --jsx-a11y-plugin --vue-plugin",
 		"fmt:check": "oxfmt --check",
-		"check": "pnpm lint && pnpm build:typecheck && pnpm test && pnpm build",
+		"check": "pnpm lint && pnpm build:typecheck && pnpm test && pnpm build && pnpm publint",
 		"generate:version": "pnpm --filter @almeidx/version-check build && node packages/core/dist/cli.mjs generate",
 		"prepare": "husky .github/husky"
 	},
@@ -37,6 +38,7 @@
 		"husky": "^9.1.7",
 		"oxfmt": "^0.52.0",
 		"oxlint": "^1.67.0",
+		"publint": "^0.3.21",
 		"tsdown": "^0.22.1",
 		"typescript": "^6.0.3",
 		"vitest": "^4.1.7"
