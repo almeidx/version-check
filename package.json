@@ -33,16 +33,16 @@
 		"prepare": "husky .github/husky"
 	},
 	"devDependencies": {
-		"@types/node": "^24.12.4",
+		"@types/node": "^24.13.1",
 		"happy-dom": "^20.10.2",
 		"husky": "^9.1.7",
 		"nano-staged": "^1.0.2",
-		"oxfmt": "^0.52.0",
-		"oxlint": "^1.67.0",
+		"oxfmt": "^0.54.0",
+		"oxlint": "^1.69.0",
 		"publint": "^0.3.21",
-		"tsdown": "^0.22.1",
+		"tsdown": "^0.22.2",
 		"typescript": "^6.0.3",
-		"vitest": "^4.1.7"
+		"vitest": "^4.1.8"
 	},
 	"nano-staged": {
 		"*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}": [
