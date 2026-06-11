@@ -74,7 +74,7 @@
 		"typescript": "^6.0.3"
 	},
 	"peerDependencies": {
-		"next": ">=15.0.0",
+		"next": ">=16.2.9",
 		"react": ">=18.3.0"
 	}
 }
