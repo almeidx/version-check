@@ -36,12 +36,20 @@
 		"@types/node": "^24.12.4",
 		"happy-dom": "^20.10.2",
 		"husky": "^9.1.7",
+		"nano-staged": "^1.0.2",
 		"oxfmt": "^0.52.0",
 		"oxlint": "^1.67.0",
 		"publint": "^0.3.21",
 		"tsdown": "^0.22.1",
 		"typescript": "^6.0.3",
 		"vitest": "^4.1.7"
+	},
+	"nano-staged": {
+		"*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}": [
+			"oxfmt --write",
+			"oxlint --fix --import-plugin --react-plugin --vitest-plugin --jsx-a11y-plugin --vue-plugin"
+		],
+		"*.{json,jsonc,md}": "oxfmt --write"
 	},
 	"engines": {
 		"node": ">=24.0.0"

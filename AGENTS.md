@@ -47,7 +47,11 @@ as ESM-only.
   SSR test depends on it being absent).
 - `dist/` is gitignored; bins import from `dist/`, so the CLI needs a build to run locally
   (`pnpm generate:version` does both).
-- Pre-commit hook (`.github/husky/pre-commit`) runs `pnpm fmt` and re-stages.
+- Pre-commit hook (`.github/husky/pre-commit`) runs `pnpm exec nano-staged` on staged files only
+  (config under the `"nano-staged"` key in root `package.json`); fixes are added to the commit and
+  a failing task aborts it.
+- Commit subjects use conventional commits: `type[!]: lowercase subject` (e.g.
+  `feat!: require Next 15 or newer`); subjects feed the generated changelog.
 - AI-assisted commits end with `Assisted-by: Claude:<model-id>` (one line per model that
   materially produced the change — kernel coding-assistants convention). Never add
   `Co-Authored-By`; `Signed-off-by` is for humans only.
