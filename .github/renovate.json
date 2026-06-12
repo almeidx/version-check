@@ -18,6 +18,10 @@
 		{
 			"enabled": false,
 			"matchDepTypes": ["engines"]
+		},
+		{
+			"enabled": false,
+			"matchDepTypes": ["peerDependencies"]
 		}
 	],
 	"postUpdateOptions": ["pnpmDedupe"],
