@@ -34,15 +34,15 @@
 	},
 	"devDependencies": {
 		"@types/node": "^24.13.2",
-		"happy-dom": "^20.10.3",
+		"happy-dom": "^20.10.4",
 		"husky": "^9.1.7",
 		"nano-staged": "^1.0.2",
-		"oxfmt": "^0.54.0",
-		"oxlint": "^1.69.0",
+		"oxfmt": "^0.55.0",
+		"oxlint": "^1.70.0",
 		"publint": "^0.3.21",
 		"tsdown": "^0.22.2",
 		"typescript": "^6.0.3",
-		"vitest": "^4.1.8"
+		"vitest": "^4.1.9"
 	},
 	"nano-staged": {
 		"*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}": [
@@ -54,5 +54,5 @@
 	"engines": {
 		"node": ">=24.0.0"
 	},
-	"packageManager": "pnpm@11.6.0"
+	"packageManager": "pnpm@11.7.0"
 }
