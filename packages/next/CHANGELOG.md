@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] - 2026-06-18
+
+- chore: run publint in release publish workflow
+- deps: Update patch/minor dependencies (#16)
+
 ## [0.2.0-next.5] - 2026-06-17
 
 - deps: Lock file maintenance (#13)
