@@ -26,6 +26,7 @@ export default defineConfig({
 Read the matching build id from the virtual module:
 
 ```ts
+import { createVersionChecker } from "@almeidx/version-check-vite";
 import buildId from "virtual:version-check/build-id";
 
 createVersionChecker({

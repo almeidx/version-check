@@ -88,6 +88,8 @@ jobs:
 
       - run: pnpm run build
 
+      - run: pnpm run publint
+
       - name: Extract changelog for this version
         id: changelog
         run: |
