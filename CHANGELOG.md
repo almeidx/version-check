@@ -4,8 +4,26 @@ All notable changes to this project will be documented in this file.
 
 ## [1.0.0] - 2026-06-18
 
-- chore: run publint in release publish workflow
-- deps: Update patch/minor dependencies (#16)
+This is the first public-ready release of `version-check`: a small, headless way for web apps to
+detect that a newer deployment is available without forcing a UI pattern or automatic reload.
+
+- Ships the core `@almeidx/version-check` package with `createVersionChecker`, JSON version
+  fetching, payload normalization, comparison helpers, browser polling, and focus/online/visibility
+  rechecks.
+- Adds React and Vue integrations (`useVersionCheck`) that manage the checker lifecycle while
+  leaving applications in control of their own "refresh to update" UI.
+- Adds a Next.js adapter for App Router apps with `getNextBuildId`, `createNextVersionHandler`, and
+  `useNextVersionCheck` for serving and polling the current build id.
+- Adds a Vite plugin that resolves one build id, serves/emits `/version.json`, and exposes the same
+  id through `virtual:version-check/build-id`.
+- Includes the `version-check generate` CLI for writing `version.json` from deployment metadata such
+  as `VERSION_CHECK_BUILD_ID`, `SOURCE_COMMIT`, Vercel/GitLab/GitHub commit env vars, or
+  `local-dev`.
+- Documents the default `/version.json` contract, supported payload shapes, lifecycle options,
+  package exports, examples, and stable peer ranges (Next.js 15+, Vite 6+).
+- Publishes all packages as ESM-only TypeScript packages with public npm metadata,
+  provenance-enabled release publishing, CI validation, package builds, examples, tests, and publint
+  checks.
 
 ## [0.2.0-next.5] - 2026-06-17
 
