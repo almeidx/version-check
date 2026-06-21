@@ -22,6 +22,20 @@
 		{
 			"enabled": false,
 			"matchDepTypes": ["peerDependencies"]
+		},
+		{
+			"enabled": true,
+			"groupName": "Node.js runtime",
+			"groupSlug": "node-js",
+			"matchDatasources": ["docker", "node-version"],
+			"matchPackageNames": [
+				"/(?:^|/)node$/",
+				"!calico/node",
+				"!docker.io/calico/node",
+				"!ghcr.io/devcontainers/features/node",
+				"!kindest/node",
+				"!docker.io/kindest/node"
+			]
 		}
 	],
 	"postUpdateOptions": ["pnpmDedupe"],
