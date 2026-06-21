@@ -5,7 +5,7 @@
 	"extends": ["config:recommended"],
 	"lockFileMaintenance": {
 		"enabled": true,
-		"schedule": ["* 5-9 * * SUN"]
+		"schedule": ["* 5-9 * * SUN"],
 	},
 	"minimumReleaseAge": "1 day",
 	"packageRules": [
@@ -13,15 +13,15 @@
 			"groupName": "patch/minor dependencies",
 			"groupSlug": "all-non-major",
 			"matchUpdateTypes": ["patch", "minor"],
-			"schedule": ["* 5-9 * * *", "* * * * SAT,SUN"]
+			"schedule": ["* 5-9 * * *", "* * * * SAT,SUN"],
 		},
 		{
 			"enabled": false,
-			"matchDepTypes": ["engines"]
+			"matchDepTypes": ["engines"],
 		},
 		{
 			"enabled": false,
-			"matchDepTypes": ["peerDependencies"]
+			"matchDepTypes": ["peerDependencies"],
 		},
 		{
 			"enabled": true,
@@ -34,12 +34,12 @@
 				"!docker.io/calico/node",
 				"!ghcr.io/devcontainers/features/node",
 				"!kindest/node",
-				"!docker.io/kindest/node"
-			]
-		}
+				"!docker.io/kindest/node",
+			],
+		},
 	],
 	"postUpdateOptions": ["pnpmDedupe"],
 	"prHourlyLimit": 0,
 	"rangeStrategy": "bump",
-	"timezone": "Europe/Lisbon"
+	"timezone": "Europe/Lisbon",
 }
