@@ -17,10 +17,6 @@
 		},
 		{
 			"enabled": false,
-			"matchDepTypes": ["engines"],
-		},
-		{
-			"enabled": false,
 			"matchDepTypes": ["peerDependencies"],
 		},
 		{
@@ -36,6 +32,10 @@
 				"!kindest/node",
 				"!docker.io/kindest/node",
 			],
+		},
+		{
+			"enabled": false,
+			"matchDepTypes": ["engines"],
 		},
 	],
 	"postUpdateOptions": ["pnpmDedupe"],
