@@ -1,13 +1,11 @@
 import { readFile, writeFile } from "node:fs/promises";
 
 const bump = process.argv[2];
-const preid = process.argv[3] || "next";
-const supportedBumps = ["patch", "minor", "major", "prepatch", "preminor", "premajor", "prerelease"];
+const prereleaseTag = process.argv[3] || "alpha";
+const supportedBumps = ["patch", "minor", "major", "prerelease"];
 
 if (!supportedBumps.includes(bump)) {
-	console.error(
-		"Usage: node .github/scripts/version-packages.mjs <patch|minor|major|prepatch|preminor|premajor|prerelease> [preid]",
-	);
+	console.error("Usage: node .github/scripts/version-packages.mjs <patch|minor|major|prerelease> [prerelease-tag]");
 	process.exit(1);
 }
 
@@ -44,14 +42,6 @@ function formatVersion(version) {
 	return `${base}-${version.preid}.${version.prenumber ?? 0}`;
 }
 
-function formatPrerelease(version) {
-	return formatVersion({
-		...version,
-		preid,
-		prenumber: 0,
-	});
-}
-
 function bumpVersion(currentVersion) {
 	const current = parseVersion(currentVersion);
 
@@ -71,28 +61,12 @@ function bumpVersion(currentVersion) {
 		});
 	}
 
-	if (bump === "premajor") {
-		return formatPrerelease({ major: current.major + 1, minor: 0, patch: 0 });
-	}
-
-	if (bump === "preminor") {
-		return formatPrerelease({ major: current.major, minor: current.minor + 1, patch: 0 });
-	}
-
-	if (bump === "prepatch") {
-		return formatPrerelease({
-			major: current.major,
-			minor: current.minor,
-			patch: current.patch + 1,
-		});
-	}
-
-	if (current.preid === preid && current.prenumber !== undefined) {
+	if (current.preid === prereleaseTag && current.prenumber !== undefined) {
 		return formatVersion({
 			major: current.major,
 			minor: current.minor,
 			patch: current.patch,
-			preid,
+			preid: prereleaseTag,
 			prenumber: current.prenumber + 1,
 		});
 	}
@@ -101,7 +75,7 @@ function bumpVersion(currentVersion) {
 		major: current.major,
 		minor: current.minor,
 		patch: current.patch + 1,
-		preid,
+		preid: prereleaseTag,
 		prenumber: 0,
 	});
 }
