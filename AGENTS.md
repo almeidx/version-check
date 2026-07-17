@@ -1,66 +1,51 @@
-# AGENTS.md
+# Version Check
 
-Headless version/update detection for web apps: the core package polls a `/version.json`
-endpoint and reports when the deployed build id differs from the one that rendered the page.
-Apps render their own "refresh to update" UI. pnpm monorepo; all packages are published to npm
-as ESM-only.
+This pnpm monorepo publishes headless version/update detection plus adapters for
+React, Vue, Next.js, and Vite. Packages are ESM-only and versioned together.
 
-## Layout
+Use the README for public API examples and `package.json` for the current command
+definitions. The workspace currently supports Node.js 22.19 or newer and pnpm 11.
 
-- `packages/core` — `@almeidx/version-check`: `createVersionChecker` (polling + focus/online/
-  visibility refetch), `fetchJsonVersion`, payload/compare helpers, `version-check` CLI
-  (`src/cli.ts`) that writes `version.json` from deployment env vars (`src/build-id.ts`).
-- `packages/react` — `useVersionCheck` hook (wraps core via `useSyncExternalStore`).
-- `packages/vue` — `useVersionCheck` composable (SSR-safe, effect-scope disposal).
-- `packages/next` — `createNextVersionHandler` route handler + `getNextBuildId` (server),
-  `useNextVersionCheck` (client, subpath `./client`). Requires Next 15+.
-- `packages/vite` — Vite plugin: resolves one build id, serves/emits `version.json`, exposes a
-  `virtual:version-check/build-id` module (types via subpath `./virtual`). Requires Vite 6+.
-- `examples/` — next, react-vite, vue-vite demo apps (built in CI's `pnpm build`, not published).
-- Adapters re-export all of core and ship the same `version-check` bin delegating to core's CLI.
+## Package boundaries
 
-## Commands
+- `packages/core` owns polling, payload comparison, build-id detection, and the
+  `version-check` CLI.
+- `packages/react` and `packages/vue` adapt core state to framework lifecycles.
+- `packages/next` owns the route handler, server build-id helper, and client
+  hook.
+- `packages/vite` owns build-id resolution, `version.json` generation, and the
+  virtual module.
+- `examples/` are CI build fixtures, not published packages.
 
-| Task                       | Command                                                                 |
-| -------------------------- | ----------------------------------------------------------------------- |
-| Install                    | `pnpm install` (Node >= 24, pnpm 11)                                    |
-| Everything CI runs         | `pnpm check` (lint, typecheck, test, build, publint)                    |
-| Test (all)                 | `pnpm test` (vitest run)                                                |
-| Test (one package/file)    | `pnpm test packages/core` or `pnpm test packages/core/test/cli.test.ts` |
-| Typecheck                  | `pnpm build:typecheck`                                                  |
-| Lint (check only)          | `pnpm lint` (oxfmt --check + oxlint)                                    |
-| Auto-format/fix            | `pnpm fmt`                                                              |
-| Build packages + examples  | `pnpm build` (output in gitignored `dist/`)                             |
-| Validate publish artifacts | `pnpm publint` (run after `pnpm build`)                                 |
+Adapters re-export core and delegate their CLI binary to it. Keep shared
+behavior in core rather than allowing adapter implementations to drift.
 
-## Conventions and gotchas
+## Public API and test constraints
 
-- Tabs for indentation everywhere (enforced by oxfmt), including JSON.
-- Strict TS, ESM only (`type: module`, `.js` extensions on relative imports in `src/`).
-- Public API has JSDoc with `{@link ...}`; options objects use `readonly` fields with
-  `@defaultValue` tags. Match this on any exported symbol.
-- Tests live in `packages/*/test/`. `vitest.config.ts` aliases `@almeidx/version-check`
-  (plus `/build`) and `@almeidx/version-check-react` to `packages/*/src` so cross-package tests
-  run **without building**. Core tests use a hand-rolled `FakeWindow` (see
-  `packages/core/test/index.test.ts`) and `vi.useFakeTimers()`; only the react test file sets
-  `@vitest-environment happy-dom`; vue tests intentionally run in node and stub `window` (the
-  SSR test depends on it being absent).
-- `dist/` is gitignored; bins import from `dist/`, so the CLI needs a build to run locally
-  (`pnpm generate:version` does both).
-- Pre-commit hook (`.github/husky/pre-commit`) runs `pnpm exec nano-staged` on staged files only
-  (config under the `"nano-staged"` key in root `package.json`); fixes are added to the commit and
-  a failing task aborts it.
-- Commit subjects use conventional commits: `type[!]: lowercase subject` (e.g.
-  `feat!: require Next 15 or newer`); subjects feed the generated changelog.
-- AI-assisted commits end with `Assisted-by: Claude:<model-id>` (one line per model that
-  materially produced the change — kernel coding-assistants convention). Never add
-  `Co-Authored-By`; `Signed-off-by` is for humans only.
-- `CLAUDE.md` is a symlink to this file — edit `AGENTS.md`, never replace the symlink.
+- Relative source imports use `.js` extensions even though the source is
+  TypeScript.
+- Match the existing JSDoc style on exported APIs, including `readonly` option
+  fields, links, and `@defaultValue` tags where applicable.
+- Polling must remain SSR-safe and must clean up focus, online, visibility, and
+  timer listeners when the last subscriber is removed.
+- Tests alias package imports to source, so most unit tests do not require a
+  build. The CLI imports built output; use `pnpm generate:version` when testing
+  that workflow locally.
+- Keep framework lifecycle behavior in its adapter: React uses
+  `useSyncExternalStore`; Vue must preserve effect-scope disposal and SSR
+  behavior.
 
-## Releases
+## Validation
 
-- `Prepare Release` workflow (manual dispatch) bumps all package versions in lockstep via
-  `.github/scripts/version-packages.mjs`, regenerates changelogs, and opens a `release/v*` PR.
-- Merging that PR triggers `Publish Release`: full checks, build, `pnpm pack` per package,
-  `npm publish` with provenance, git tag + GitHub release. Versions stay identical across all
-  five packages.
+`pnpm check` is the full gate (lint, typecheck, tests, builds, and publint). Use
+the narrower scripts while iterating, then run the full gate for shared or
+published-package changes.
+
+Commit subjects use conventional-commit syntax because they feed the generated
+changelog. Do not add assistant-specific authorship trailers.
+
+`CLAUDE.md` is a symlink to this file; edit `AGENTS.md` and preserve the symlink.
+
+Release preparation and publishing are handled by the workflows under
+`.github/workflows/`. Do not publish, tag, or dispatch them unless explicitly
+asked.
