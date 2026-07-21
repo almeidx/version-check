@@ -30,8 +30,8 @@ importers:
         specifier: ^0.3.21
         version: 0.3.21
       tsdown:
-        specifier: ^0.22.9
-        version: 0.22.9(publint@0.3.21)(typescript@7.0.2)
+        specifier: ^0.22.12
+        version: 0.22.12(publint@0.3.21)(typescript@7.0.2)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -126,8 +126,8 @@ importers:
         specifier: ^24.13.3
         version: 24.13.3
       tsdown:
-        specifier: ^0.22.9
-        version: 0.22.9(publint@0.3.21)(typescript@7.0.2)
+        specifier: ^0.22.12
+        version: 0.22.12(publint@0.3.21)(typescript@7.0.2)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -157,8 +157,8 @@ importers:
         specifier: ^19.2.7
         version: 19.2.7
       tsdown:
-        specifier: ^0.22.9
-        version: 0.22.9(publint@0.3.21)(typescript@7.0.2)
+        specifier: ^0.22.12
+        version: 0.22.12(publint@0.3.21)(typescript@7.0.2)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -188,8 +188,8 @@ importers:
         specifier: 19.2.7
         version: 19.2.7(react@19.2.7)
       tsdown:
-        specifier: ^0.22.9
-        version: 0.22.9(publint@0.3.21)(typescript@7.0.2)
+        specifier: ^0.22.12
+        version: 0.22.12(publint@0.3.21)(typescript@7.0.2)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -204,8 +204,8 @@ importers:
         specifier: ^24.13.3
         version: 24.13.3
       tsdown:
-        specifier: ^0.22.9
-        version: 0.22.9(publint@0.3.21)(typescript@7.0.2)
+        specifier: ^0.22.12
+        version: 0.22.12(publint@0.3.21)(typescript@7.0.2)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -226,8 +226,8 @@ importers:
         specifier: ^24.13.3
         version: 24.13.3
       tsdown:
-        specifier: ^0.22.9
-        version: 0.22.9(publint@0.3.21)(typescript@7.0.2)
+        specifier: ^0.22.12
+        version: 0.22.12(publint@0.3.21)(typescript@7.0.2)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -1745,14 +1745,14 @@ packages:
     resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
     hasBin: true
 
-  tsdown@0.22.9:
-    resolution: {integrity: sha512-/0QEjQEhOU1t1YxOIAGzFN7bIssd8P0pBpkOmNLCQi3c5UtrcMF5bvq3f30xHJNW9QCA9aUNcNAorMr2CTd6Lg==}
+  tsdown@0.22.12:
+    resolution: {integrity: sha512-IzGRfGwSsufXJWOcQ0tmECKMG/dbxhUwDOySTS7JE1AM8pkB9+bpcTPs8bTxxSNrSvGocSczrBlOh97tZObq9Q==}
     engines: {node: ^22.18.0 || >=24.11.0}
     hasBin: true
     peerDependencies:
       '@arethetypeswrong/core': ^0.18.1
-      '@tsdown/css': 0.22.9
-      '@tsdown/exe': 0.22.9
+      '@tsdown/css': 0.22.12
+      '@tsdown/exe': 0.22.12
       '@vitejs/devtools': '*'
       publint: ^0.3.8
       tsx: '*'
@@ -1797,6 +1797,10 @@ packages:
 
   undici-types@7.18.2:
     resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
+
+  verkit@0.1.2:
+    resolution: {integrity: sha512-WqkT8n3hqizuCu71W3bUzf5fjBmkbXcudsehe/NbxA8PgqoKnSOY5K0Ba2ckg1qaRaSpSz7as/n9K1R9JXjQKg==}
+    engines: {node: '>=18.12.0'}
 
   vite@8.1.5:
     resolution: {integrity: sha512-7ULLwsCdYx/nRyrpiEwvqb5TFHrMVZyBt+rg/OAXT7rgj/z+DtTDyKFeLAdDkubDVDKD8jOsndmy7m55XcfUsw==}
@@ -2964,7 +2968,8 @@ snapshots:
 
   scheduler@0.27.0: {}
 
-  semver@7.8.5: {}
+  semver@7.8.5:
+    optional: true
 
   sharp@0.34.5:
     dependencies:
@@ -3026,7 +3031,7 @@ snapshots:
 
   tree-kill@1.2.2: {}
 
-  tsdown@0.22.9(publint@0.3.21)(typescript@7.0.2):
+  tsdown@0.22.12(publint@0.3.21)(typescript@7.0.2):
     dependencies:
       ansis: 4.3.1
       cac: 7.0.0
@@ -3038,11 +3043,11 @@ snapshots:
       picomatch: 4.0.5
       rolldown: 1.2.0
       rolldown-plugin-dts: 0.27.11(rolldown@1.2.0)(typescript@7.0.2)
-      semver: 7.8.5
       tinyexec: 1.2.4
       tinyglobby: 0.2.17
       tree-kill: 1.2.2
       unconfig-core: 7.5.0
+      verkit: 0.1.2
     optionalDependencies:
       publint: 0.3.21
       typescript: 7.0.2
@@ -3085,6 +3090,8 @@ snapshots:
       quansync: 1.0.0
 
   undici-types@7.18.2: {}
+
+  verkit@0.1.2: {}
 
   vite@8.1.5(@types/node@24.13.3):
     dependencies:
