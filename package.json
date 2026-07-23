@@ -37,10 +37,10 @@
 		"happy-dom": "^20.11.0",
 		"husky": "^9.1.7",
 		"nano-staged": "^1.0.2",
-		"oxfmt": "^0.59.0",
-		"oxlint": "^1.74.0",
+		"oxfmt": "^0.60.0",
+		"oxlint": "^1.75.0",
 		"publint": "^0.3.21",
-		"tsdown": "^0.22.12",
+		"tsdown": "^0.22.13",
 		"typescript": "^7.0.2",
 		"vitest": "^4.1.10"
 	},
