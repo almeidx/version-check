@@ -12,8 +12,8 @@ importers:
         specifier: ^24.13.3
         version: 24.13.3
       happy-dom:
-        specifier: ^20.11.0
-        version: 20.11.0
+        specifier: ^20.11.1
+        version: 20.11.1
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -27,17 +27,17 @@ importers:
         specifier: ^1.75.0
         version: 1.75.0
       publint:
-        specifier: ^0.3.21
-        version: 0.3.21
+        specifier: ^0.3.22
+        version: 0.3.22
       tsdown:
         specifier: ^0.22.13
-        version: 0.22.13(publint@0.3.21)(typescript@7.0.2)
+        version: 0.22.13(publint@0.3.22)(typescript@7.0.2)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
       vitest:
         specifier: ^4.1.10
-        version: 4.1.10(@types/node@24.13.3)(happy-dom@20.11.0)(vite@8.1.5(@types/node@24.13.3))
+        version: 4.1.10(@types/node@24.13.3)(happy-dom@20.11.1)(vite@8.1.5(@types/node@24.13.3))
 
   examples/next:
     dependencies:
@@ -127,13 +127,13 @@ importers:
         version: 24.13.3
       tsdown:
         specifier: ^0.22.13
-        version: 0.22.13(publint@0.3.21)(typescript@7.0.2)
+        version: 0.22.13(publint@0.3.22)(typescript@7.0.2)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
       vitest:
         specifier: ^4.1.10
-        version: 4.1.10(@types/node@24.13.3)(happy-dom@20.11.0)(vite@8.1.5(@types/node@24.13.3))
+        version: 4.1.10(@types/node@24.13.3)(happy-dom@20.11.1)(vite@8.1.5(@types/node@24.13.3))
 
   packages/next:
     dependencies:
@@ -158,7 +158,7 @@ importers:
         version: 19.2.8
       tsdown:
         specifier: ^0.22.13
-        version: 0.22.13(publint@0.3.21)(typescript@7.0.2)
+        version: 0.22.13(publint@0.3.22)(typescript@7.0.2)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -189,7 +189,7 @@ importers:
         version: 19.2.8(react@19.2.8)
       tsdown:
         specifier: ^0.22.13
-        version: 0.22.13(publint@0.3.21)(typescript@7.0.2)
+        version: 0.22.13(publint@0.3.22)(typescript@7.0.2)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -205,7 +205,7 @@ importers:
         version: 24.13.3
       tsdown:
         specifier: ^0.22.13
-        version: 0.22.13(publint@0.3.21)(typescript@7.0.2)
+        version: 0.22.13(publint@0.3.22)(typescript@7.0.2)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -214,7 +214,7 @@ importers:
         version: 8.1.5(@types/node@24.13.3)
       vitest:
         specifier: ^4.1.10
-        version: 4.1.10(@types/node@24.13.3)(happy-dom@20.11.0)(vite@8.1.5(@types/node@24.13.3))
+        version: 4.1.10(@types/node@24.13.3)(happy-dom@20.11.1)(vite@8.1.5(@types/node@24.13.3))
 
   packages/vue:
     dependencies:
@@ -227,7 +227,7 @@ importers:
         version: 24.13.3
       tsdown:
         specifier: ^0.22.13
-        version: 0.22.13(publint@0.3.21)(typescript@7.0.2)
+        version: 0.22.13(publint@0.3.22)(typescript@7.0.2)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -744,8 +744,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@publint/pack@0.1.5':
-    resolution: {integrity: sha512-edgyN2pP07uXiP4tJs0s8KVmU8M8i60YPbbI0/WDeok1mIJHRXz+CgD8I0nelwDkoCh3EWL/G5kGfbuHjsdbvw==}
+  '@publint/pack@0.1.6':
+    resolution: {integrity: sha512-3uVNyGcVplhPZSLVyeIpL7+cIRn1YCSNHLG/rUIlBQMVH8YuN9++YF+5+UDIIO9RW98dujiUoTltO7RDB5bFJA==}
     engines: {node: '>=18'}
 
   '@quansync/fs@1.0.0':
@@ -1432,8 +1432,8 @@ packages:
     resolution: {integrity: sha512-/6gFNr0N04nob252sTQxyFLi3eKFRqIg1I87YcqAMT1i6SQrSF6KujUEQrtrjMV0H/eejTCltLdDSTEMzHbnsQ==}
     engines: {node: '>=20.20.0'}
 
-  happy-dom@20.11.0:
-    resolution: {integrity: sha512-XogN4asPd1a56di9prVG6bZxteNcXsZxxKmAvcEfc5Px5Ca2hMyMgk8wvqK2K1V8zXg40j9VANXsDaJYh9DeNA==}
+  happy-dom@20.11.1:
+    resolution: {integrity: sha512-XSt8tMzbW9ymE7687xztkO1ckR7qJNQ3LywY9vlYGhGi3zXrGBHuUo2Cl1ztZaICW+1eAGdkLbj6iwVqDT33kg==}
     engines: {node: '>=20.0.0'}
 
   hookable@6.1.1:
@@ -1622,8 +1622,8 @@ packages:
     resolution: {integrity: sha512-Qb1gy5OrP5+zDf2Bvnzdl3jsTf1qXVMazbvCoKhtKqVs4/YK4ozX4gKQJJVyNe+cajNPn0KoC0MC3FUmaHWEmQ==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
 
-  publint@0.3.21:
-    resolution: {integrity: sha512-OqejcnMV6E9zel2oCrUOJEiiFkGiAAni0A6ibfQNh1k9Gu5z4F+Yso8lllam7AzmV6Do0vp7u3UpZNRBwuXaHQ==}
+  publint@0.3.22:
+    resolution: {integrity: sha512-6Z/scsr5CA7APdwyF35EY88CqgDj1textWuY788DVTJYPCWVv/Wn9G6KmLnrVRnStgYcahqN4wCDLZGSbQJ69w==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -2225,7 +2225,7 @@ snapshots:
   '@oxlint/binding-win32-x64-msvc@1.75.0':
     optional: true
 
-  '@publint/pack@0.1.5':
+  '@publint/pack@0.1.6':
     dependencies:
       tinyexec: 1.2.4
 
@@ -2693,7 +2693,7 @@ snapshots:
     dependencies:
       resolve-pkg-maps: 1.0.0
 
-  happy-dom@20.11.0:
+  happy-dom@20.11.1:
     dependencies:
       '@types/node': 24.13.3
       '@types/whatwg-mimetype': 3.0.2
@@ -2873,9 +2873,9 @@ snapshots:
       ansi-styles: 5.2.0
       react-is: 17.0.2
 
-  publint@0.3.21:
+  publint@0.3.22:
     dependencies:
-      '@publint/pack': 0.1.5
+      '@publint/pack': 0.1.6
       package-manager-detector: 1.7.0
       picocolors: 1.1.1
       sade: 1.8.1
@@ -3018,7 +3018,7 @@ snapshots:
 
   tree-kill@1.2.2: {}
 
-  tsdown@0.22.13(publint@0.3.21)(typescript@7.0.2):
+  tsdown@0.22.13(publint@0.3.22)(typescript@7.0.2):
     dependencies:
       ansis: 4.3.1
       cac: 7.0.0
@@ -3036,7 +3036,7 @@ snapshots:
       unconfig-core: 7.5.0
       verkit: 0.1.2
     optionalDependencies:
-      publint: 0.3.21
+      publint: 0.3.22
       typescript: 7.0.2
     transitivePeerDependencies:
       - '@typescript/native-preview'
@@ -3091,7 +3091,7 @@ snapshots:
       '@types/node': 24.13.3
       fsevents: 2.3.3
 
-  vitest@4.1.10(@types/node@24.13.3)(happy-dom@20.11.0)(vite@8.1.5(@types/node@24.13.3)):
+  vitest@4.1.10(@types/node@24.13.3)(happy-dom@20.11.1)(vite@8.1.5(@types/node@24.13.3)):
     dependencies:
       '@vitest/expect': 4.1.10
       '@vitest/mocker': 4.1.10(vite@8.1.5(@types/node@24.13.3))
@@ -3115,7 +3115,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 24.13.3
-      happy-dom: 20.11.0
+      happy-dom: 20.11.1
     transitivePeerDependencies:
       - msw
 
