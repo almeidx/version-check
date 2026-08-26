@@ -26,6 +26,8 @@ export type UseNextVersionCheckOptions<TLatest extends VersionPayload = NextVers
 export function useNextVersionCheck<TLatest extends VersionPayload = NextVersionPayload>(
 	options: UseNextVersionCheckOptions<TLatest>,
 ): UseVersionCheckResult<TLatest> {
+	"use memo";
+
 	return useVersionCheck<TLatest>({
 		endpoint: "/api/version",
 		...options,

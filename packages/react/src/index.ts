@@ -12,7 +12,7 @@ import {
 	type VersionFetcher,
 	type VersionPayload,
 } from "@almeidx/version-check";
-import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from "react";
 
 /** Options for {@link useVersionCheck}: {@link VersionCheckOptions} without `autoStart` (the hook owns the lifecycle). */
 export type UseVersionCheckOptions<TLatest extends VersionPayload = VersionPayload> = Omit<
@@ -26,45 +26,15 @@ export type UseVersionCheckResult<TLatest extends VersionPayload = VersionPayloa
 	readonly check: () => Promise<VersionCheckState<TLatest>>;
 };
 
-/**
- * Subscribes to a {@link createVersionChecker} for the lifetime of the component and returns its
- * latest {@link VersionCheckState} along with a manual {@link UseVersionCheckResult.check | check} trigger.
- *
- * Polling starts on mount and stops on unmount. The checker is recreated when lifecycle options
- * change; fetch and comparison callbacks are read from the latest render without restarting.
- *
- * @example
- * ```tsx
- * function Banner({ currentVersion }: { currentVersion: string }) {
- * 	const { updateAvailable } = useVersionCheck({ currentVersion });
- * 	return updateAvailable ? <RefreshPrompt /> : null;
- * }
- * ```
- */
-export function useVersionCheck<TLatest extends VersionPayload = VersionPayload>(
-	options: UseVersionCheckOptions<TLatest>,
-): UseVersionCheckResult<TLatest> {
-	const {
-		checkImmediately,
-		compare,
-		currentVersion,
-		endpoint,
-		fetch,
-		fetcher,
-		getWindow,
-		intervalMs,
-		minIntervalMs,
-		now,
-		pauseWhenHidden,
-		refetchOnReconnect,
-		refetchOnVisibilityChange,
-		refetchOnWindowFocus,
-		requestInit,
-	} = options;
+function useLatestOptions<TLatest extends VersionPayload>(
+	options: Pick<UseVersionCheckOptions<TLatest>, "compare" | "fetch" | "fetcher" | "now" | "requestInit">,
+) {
+	"use no memo";
 
-	const latestOptions = { compare, fetch, fetcher, now, requestInit };
-	const latestOptionsRef = useRef(latestOptions);
-	latestOptionsRef.current = latestOptions;
+	const latestOptionsRef = useRef(options);
+	useLayoutEffect(() => {
+		latestOptionsRef.current = options;
+	});
 
 	const latestFetcher = useCallback<VersionFetcher<TLatest>>(async (context) => {
 		const { fetch, fetcher, requestInit } = latestOptionsRef.current;
@@ -84,6 +54,49 @@ export function useVersionCheck<TLatest extends VersionPayload = VersionPayload>
 	);
 
 	const latestNow = useCallback(() => latestOptionsRef.current.now?.() ?? Date.now(), []);
+
+	return { latestCompare, latestFetcher, latestNow };
+}
+
+/**
+ * Subscribes to a {@link createVersionChecker} for the lifetime of the component and returns its
+ * latest {@link VersionCheckState} along with a manual {@link UseVersionCheckResult.check | check} trigger.
+ *
+ * Polling starts on mount and stops on unmount. The checker is recreated when lifecycle options
+ * change; fetch and comparison callbacks are read from the latest render without restarting.
+ *
+ * @example
+ * ```tsx
+ * function Banner({ currentVersion }: { currentVersion: string }) {
+ * 	const { updateAvailable } = useVersionCheck({ currentVersion });
+ * 	return updateAvailable ? <RefreshPrompt /> : null;
+ * }
+ * ```
+ */
+export function useVersionCheck<TLatest extends VersionPayload = VersionPayload>(
+	options: UseVersionCheckOptions<TLatest>,
+): UseVersionCheckResult<TLatest> {
+	"use memo";
+
+	const {
+		checkImmediately,
+		compare,
+		currentVersion,
+		endpoint,
+		fetch,
+		fetcher,
+		getWindow,
+		intervalMs,
+		minIntervalMs,
+		now,
+		pauseWhenHidden,
+		refetchOnReconnect,
+		refetchOnVisibilityChange,
+		refetchOnWindowFocus,
+		requestInit,
+	} = options;
+
+	const { latestCompare, latestFetcher, latestNow } = useLatestOptions({ compare, fetch, fetcher, now, requestInit });
 
 	const checker = useMemo(
 		() =>
