@@ -226,6 +226,36 @@ describe("createVersionChecker", () => {
 		expect(seenStatuses).toEqual(["checking", "update-available"]);
 	});
 
+	test("updates check options without restarting", async () => {
+		const initialFetcher = vi.fn<() => Promise<string>>(async () => "1");
+		const updatedFetcher = vi.fn<() => Promise<string>>(async () => "2");
+		const updatedCompare = vi.fn<() => boolean>(() => false);
+		const requestInit = { headers: { "x-version": "latest" } };
+		const checker = createVersionChecker({
+			currentVersion: "1",
+			fetcher: initialFetcher,
+		});
+
+		checker.updateOptions({
+			fetcher: updatedFetcher,
+			compare: updatedCompare,
+			requestInit,
+			now: () => 42,
+		});
+
+		await checker.check();
+
+		expect(initialFetcher).not.toHaveBeenCalled();
+		expect(updatedFetcher).toHaveBeenCalledWith(expect.objectContaining({ requestInit }));
+		expect(updatedCompare).toHaveBeenCalledWith({ currentVersion: "1", latestVersion: "2" });
+		expect(checker.getState()).toMatchObject({
+			status: "current",
+			latestVersion: "2",
+			updateAvailable: false,
+			lastCheckedAt: 42,
+		});
+	});
+
 	test("checks again from browser lifecycle events and removes listeners on stop", async () => {
 		const fakeWindow = new FakeWindow();
 		let checks = 0;

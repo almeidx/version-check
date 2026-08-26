@@ -39,6 +39,7 @@ describe("useVersionCheck (react)", () => {
 		checkers = [];
 		vi.mocked(createVersionChecker).mockImplementation(() => {
 			const checker: VersionChecker = {
+				updateOptions: vi.fn<VersionChecker["updateOptions"]>(),
 				start: vi.fn<VersionChecker["start"]>(),
 				stop: vi.fn<VersionChecker["stop"]>(),
 				check: vi.fn<VersionChecker["check"]>(async () => state),
@@ -92,8 +93,8 @@ describe("useVersionCheck (react)", () => {
 		expect(checkers[0]?.start).toHaveBeenCalledTimes(1);
 		expect(checkers[0]?.stop).not.toHaveBeenCalled();
 
-		const options = vi.mocked(createVersionChecker).mock.calls[0]?.[0] as
-			| VersionCheckOptions<VersionPayload>
+		const options = vi.mocked(checkers[0]?.updateOptions).mock.lastCall?.[0] as
+			| Pick<VersionCheckOptions<VersionPayload>, "compare" | "fetch" | "fetcher" | "now" | "requestInit">
 			| undefined;
 		if (options?.fetcher === undefined || options.compare === undefined) {
 			throw new Error("Expected stable fetcher and compare wrappers.");
@@ -105,6 +106,8 @@ describe("useVersionCheck (react)", () => {
 		const latestVersion = await options.fetcher({
 			endpoint: "/version.json",
 			signal: abortController.signal,
+			requestInit: options.requestInit,
+			fetch: options.fetch,
 		});
 		const updateAvailable = options.compare({
 			currentVersion: "current",

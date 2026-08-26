@@ -66,8 +66,11 @@
 		"@almeidx/version-check-react": "workspace:*"
 	},
 	"devDependencies": {
+		"@babel/core": "^7.29.7",
+		"@rolldown/plugin-babel": "^0.2.3",
 		"@types/node": "^24.13.3",
 		"@types/react": "^19.2.18",
+		"babel-plugin-react-compiler": "^1.0.0",
 		"next": "^16.3.1",
 		"react": "^19.2.8",
 		"tsdown": "^0.22.14",
@@ -75,6 +78,6 @@
 	},
 	"peerDependencies": {
 		"next": ">=15.0.0",
-		"react": ">=18.3.0"
+		"react": ">=19.0.0"
 	}
 }

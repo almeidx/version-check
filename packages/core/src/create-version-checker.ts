@@ -157,6 +157,13 @@ export interface VersionCheckOptions<TLatest extends VersionPayload = VersionPay
  */
 export interface VersionChecker<TLatest extends VersionPayload = VersionPayload> {
 	/**
+	 * Update options used by subsequent checks without restarting the polling lifecycle.
+	 * Lifecycle options are fixed when the checker is created.
+	 */
+	updateOptions(
+		options: Pick<VersionCheckOptions<TLatest>, "compare" | "fetch" | "fetcher" | "now" | "requestInit">,
+	): void;
+	/**
 	 * Start interval polling and attach browser lifecycle listeners. No-op if already running.
 	 */
 	start(): void;
@@ -211,7 +218,6 @@ export function createVersionChecker<TLatest extends VersionPayload = VersionPay
 	const intervalMs = options.intervalMs ?? defaultPollIntervalMs;
 	const minIntervalMs = options.minIntervalMs ?? defaultLifecycleMinIntervalMs;
 	const pauseWhenHidden = options.pauseWhenHidden !== false;
-	const now = options.now ?? Date.now;
 	const listeners = new Set<VersionCheckListener<TLatest>>();
 	const disposeBrowserListeners = new Set<() => void>();
 
@@ -220,6 +226,7 @@ export function createVersionChecker<TLatest extends VersionPayload = VersionPay
 	let abortController: AbortController | undefined;
 	let lastCheckStartedAt: number | undefined;
 	let currentWindow: Window | undefined;
+	let checkOptions = options;
 	let state: VersionCheckState<TLatest> = {
 		status: "idle",
 		currentVersion: options.currentVersion,
@@ -254,30 +261,30 @@ export function createVersionChecker<TLatest extends VersionPayload = VersionPay
 
 		const ownController = new AbortController();
 		abortController = ownController;
-		lastCheckStartedAt = now();
+		lastCheckStartedAt = getNow();
 		setState({ status: "checking", error: undefined });
 
 		try {
-			const fetcher = options.fetcher ?? fetchJsonVersion<TLatest>;
+			const fetcher = checkOptions.fetcher ?? fetchJsonVersion<TLatest>;
 			const latestVersion = await fetcher({
 				endpoint,
 				signal: ownController.signal,
-				requestInit: options.requestInit,
-				fetch: options.fetch,
+				requestInit: checkOptions.requestInit,
+				fetch: checkOptions.fetch,
 			});
 
 			// A newer check() (or stop()) superseded this one. The latest check owns the state, so
 			// returning without touching it avoids emitting a stale, out-of-order intermediate state.
 			if (ownController.signal.aborted) return state;
 
-			const updateAvailable = isUpdateAvailable(options.currentVersion, latestVersion, options.compare);
+			const updateAvailable = isUpdateAvailable(options.currentVersion, latestVersion, checkOptions.compare);
 
 			setState({
 				status: updateAvailable ? "update-available" : "current",
 				latestVersion,
 				updateAvailable,
 				error: undefined,
-				lastCheckedAt: now(),
+				lastCheckedAt: getNow(),
 			});
 		} catch (error) {
 			if (ownController.signal.aborted) return state;
@@ -285,7 +292,7 @@ export function createVersionChecker<TLatest extends VersionPayload = VersionPay
 			setState({
 				status: "error",
 				error,
-				lastCheckedAt: now(),
+				lastCheckedAt: getNow(),
 			});
 		} finally {
 			if (abortController === ownController) {
@@ -300,7 +307,7 @@ export function createVersionChecker<TLatest extends VersionPayload = VersionPay
 		// Collapse bursts of lifecycle events (focus + online + visibilitychange often fire together,
 		// e.g. when resuming from sleep) rather than starting overlapping checks that abort each other.
 		if (state.status === "checking") return;
-		if (minIntervalMs > 0 && lastCheckStartedAt !== undefined && now() - lastCheckStartedAt < minIntervalMs) {
+		if (minIntervalMs > 0 && lastCheckStartedAt !== undefined && getNow() - lastCheckStartedAt < minIntervalMs) {
 			return;
 		}
 
@@ -404,7 +411,14 @@ export function createVersionChecker<TLatest extends VersionPayload = VersionPay
 		};
 	}
 
+	function getNow(): number {
+		return checkOptions.now?.() ?? Date.now();
+	}
+
 	const checker: VersionChecker<TLatest> = {
+		updateOptions: (nextOptions) => {
+			checkOptions = { ...checkOptions, ...nextOptions };
+		},
 		start,
 		stop,
 		check,
