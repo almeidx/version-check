@@ -2,6 +2,59 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2026-09-02
+
+- deps: Update patch/minor dependencies (#65)
+- deps: Update oxlint to v1.81.0 and oxfmt to v0.66.0
+- deps: Update Node.js to v24.20.0 (#64)
+- deps: Lock file maintenance (#59)
+- deps: Update patch/minor dependencies (#58)
+- deps: Lock file maintenance (#57)
+- deps: Update patch/minor dependencies (#56)
+- deps: Update Node.js to v24.19.0 (#55)
+- deps: Lock file maintenance (#54)
+- deps: Update patch/minor dependencies (#53)
+- deps: Update Node.js to v24.18.1 (#52)
+- chore: schedule Renovate updates for Saturday mornings
+- deps: Update dependency next to ^16.2.12 (#51)
+- deps: Lock file maintenance (#50)
+- deps: Update patch/minor dependencies (#49)
+- deps: Update patch/minor dependencies (#48)
+- deps: Update patch/minor dependencies (#47)
+- deps: Update patch/minor dependencies (#46)
+- deps: Update dependency happy-dom to ^20.11.0 (#45)
+- deps: Lock file maintenance (#44)
+- deps: Update pnpm to v11.15.0 (#43)
+- deps: Update patch/minor dependencies (#42)
+- docs: streamline agent guidance
+- deps: Update patch/minor dependencies (#41)
+- deps: Update actions/setup-node action to v7 (#40)
+- deps: Update patch/minor dependencies (#39)
+- deps: Update dependency tsdown to ^0.22.5 (#38)
+- deps: Update dependency typescript to v7 (#34)
+- deps: Lock file maintenance (#37)
+- deps: Update pnpm to v11.11.0 (#36)
+- deps: Update dependency vite to ^8.1.4 (#35)
+- deps: Update patch/minor dependencies (#33)
+- deps: Update patch/minor dependencies (#32)
+- deps: Lock file maintenance (#30)
+- deps: Update pnpm to v11.10.0 (#31)
+- deps: Update patch/minor dependencies (#29)
+- deps: Update patch/minor dependencies (#28)
+- deps: Update version bump script and workflow for prerelease tagging
+- deps: Lock file maintenance (#27)
+- deps: Update dependency vue to ^3.5.39 (#26)
+- deps: Update patch/minor dependencies (#25)
+- chore: separate runtime Node version from engine floor
+- deps: Update patch/minor dependencies (#24)
+- deps: Update Node.js runtime (#22)
+- chore: move Renovate config to JSONC
+- chore: group Node.js runtime Renovate updates
+- deps: Lock file maintenance (#21)
+- deps: Update patch/minor dependencies (#20)
+- deps: Update patch/minor dependencies to ^20.10.6 (#19)
+- deps: Update actions/checkout action to v7 (#18)
+
 ## [1.0.0] - 2026-06-18
 
 This is the first public-ready release of `version-check`: a small, headless way for web apps to
