@@ -64,7 +64,10 @@ export function useVersionCheck<TLatest extends VersionPayload = VersionPayload>
 
 	const latestOptions = { compare, fetch, fetcher, now, requestInit };
 	const latestOptionsRef = useRef(latestOptions);
-	latestOptionsRef.current = latestOptions;
+
+	useEffect(() => {
+		latestOptionsRef.current = latestOptions;
+	});
 
 	const latestFetcher = useCallback<VersionFetcher<TLatest>>(async (context) => {
 		const { fetch, fetcher, requestInit } = latestOptionsRef.current;
@@ -87,6 +90,8 @@ export function useVersionCheck<TLatest extends VersionPayload = VersionPayload>
 
 	const checker = useMemo(
 		() =>
+			// The checker only stores these callbacks; with autoStart disabled none of them run during render.
+			// oxlint-disable-next-line react/refs
 			createVersionChecker<TLatest>({
 				currentVersion,
 				autoStart: false,
