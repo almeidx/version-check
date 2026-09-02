@@ -1,6 +1,6 @@
 {
 	"name": "@almeidx/version-check",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Headless web app version/update detector.",
 	"keywords": [
 		"build-id",

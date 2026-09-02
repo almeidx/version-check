@@ -1,6 +1,6 @@
 {
 	"name": "@almeidx/version-check-vite",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Vite plugin for @almeidx/version-check.",
 	"keywords": [
 		"build-id",
