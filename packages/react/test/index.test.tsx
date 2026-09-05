@@ -11,7 +11,7 @@ import type {
 } from "@almeidx/version-check";
 import { createVersionChecker } from "@almeidx/version-check";
 import { render } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { useVersionCheck } from "../src/index.js";
 
 const coreMocks = vi.hoisted(() => ({
@@ -50,10 +50,6 @@ describe("useVersionCheck (react)", () => {
 			checkers.push(checker);
 			return checker;
 		});
-	});
-
-	afterEach(() => {
-		vi.clearAllMocks();
 	});
 
 	test("does not recreate the checker for inline fetch options", async () => {
