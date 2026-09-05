@@ -1,6 +1,6 @@
 import type { UseVersionCheckResult } from "@almeidx/version-check-react";
 import { useVersionCheck } from "@almeidx/version-check-react";
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { useNextVersionCheck } from "../src/client.js";
 
 const reactMocks = vi.hoisted(() => ({
@@ -22,10 +22,6 @@ const stubResult: UseVersionCheckResult = {
 	updateAvailable: false,
 	check: async () => ({ status: "idle", currentVersion: "current", updateAvailable: false }),
 };
-
-afterEach(() => {
-	vi.clearAllMocks();
-});
 
 describe("useNextVersionCheck", () => {
 	test("defaults the endpoint to /api/version", () => {
