@@ -33,12 +33,12 @@
 		"prepare": "husky .github/husky"
 	},
 	"devDependencies": {
-		"@types/node": "^24.13.3",
-		"happy-dom": "^20.14.0",
+		"@types/node": "^24.13.4",
+		"happy-dom": "^20.14.3",
 		"husky": "^9.1.7",
 		"nano-staged": "^1.0.2",
-		"oxfmt": "^0.66.0",
-		"oxlint": "^1.81.0",
+		"oxfmt": "^0.67.0",
+		"oxlint": "^1.82.0",
 		"publint": "^0.3.24",
 		"tsdown": "^0.23.0",
 		"typescript": "^7.0.2",
@@ -54,5 +54,5 @@
 	"engines": {
 		"node": ">=22.19.0"
 	},
-	"packageManager": "pnpm@11.25.0"
+	"packageManager": "pnpm@11.26.0"
 }
