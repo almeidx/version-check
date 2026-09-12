@@ -57,7 +57,7 @@
 		"@almeidx/version-check": "workspace:*"
 	},
 	"devDependencies": {
-		"@types/node": "^24.13.3",
+		"@types/node": "^24.13.4",
 		"tsdown": "^0.23.0",
 		"typescript": "^7.0.2",
 		"vue": "^3.5.42"
