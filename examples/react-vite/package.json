@@ -11,14 +11,14 @@
 	"dependencies": {
 		"@almeidx/version-check-react": "workspace:*",
 		"@almeidx/version-check-vite": "workspace:*",
-		"@vitejs/plugin-react": "^6.0.2",
-		"react": "^19.2.7",
-		"react-dom": "^19.2.7",
-		"vite": "^8.0.16"
+		"@vitejs/plugin-react": "catalog:examples",
+		"react": "catalog:examples",
+		"react-dom": "catalog:examples",
+		"vite": "catalog:examples"
 	},
 	"devDependencies": {
-		"@types/react": "^19.2.17",
-		"@types/react-dom": "^19.2.3",
-		"typescript": "^6.0.3"
+		"@types/react": "catalog:examples",
+		"@types/react-dom": "catalog:examples",
+		"typescript": "catalog:examples"
 	}
 }

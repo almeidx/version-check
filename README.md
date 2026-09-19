@@ -258,3 +258,8 @@ Useful scripts:
 - `pnpm lint` runs oxlint.
 - `pnpm fmt` runs oxfmt.
 - `pnpm test` runs vitest.
+
+Adapter typechecks resolve workspace dependencies directly from source. Declaration
+builds use `tsconfig.build.json` instead, resolving dependencies through their built
+package exports so the compiler does not emit sibling-package declarations into
+`src`. Use `pnpm build` to build workspace dependencies in order.
