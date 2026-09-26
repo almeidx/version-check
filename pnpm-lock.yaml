@@ -244,8 +244,8 @@ catalogs:
       specifier: ^19.3.0
       version: 19.3.0
     typescript:
-      specifier: ^6.0.3
-      version: 6.0.3
+      specifier: ^7.0.2
+      version: 7.0.2
     vite:
       specifier: ^8.3.1
       version: 8.3.1
@@ -314,7 +314,7 @@ importers:
         version: 19.3.0(@types/react@19.3.0)
       typescript:
         specifier: catalog:examples
-        version: 6.0.3
+        version: 7.0.2
 
   examples/react-vite:
     dependencies:
@@ -345,7 +345,7 @@ importers:
         version: 19.3.0(@types/react@19.3.0)
       typescript:
         specifier: catalog:examples
-        version: 6.0.3
+        version: 7.0.2
 
   examples/vue-vite:
     dependencies:
@@ -357,17 +357,17 @@ importers:
         version: link:../../packages/vue
       '@vitejs/plugin-vue':
         specifier: catalog:examples
-        version: 6.0.9(vite@8.3.1(@types/node@24.13.6))(vue@3.5.43(typescript@6.0.3))
+        version: 6.0.9(vite@8.3.1(@types/node@24.13.6))(vue@3.5.43(typescript@7.0.2))
       vite:
         specifier: catalog:examples
         version: 8.3.1(@types/node@24.13.6)
       vue:
         specifier: catalog:examples
-        version: 3.5.43(typescript@6.0.3)
+        version: 3.5.43(typescript@7.0.2)
     devDependencies:
       typescript:
         specifier: catalog:examples
-        version: 6.0.3
+        version: 7.0.2
 
   packages/core:
     devDependencies:
@@ -1909,11 +1909,6 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
-  typescript@6.0.3:
-    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
   typescript@7.0.2:
     resolution: {integrity: sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA==}
     engines: {node: '>=16.20.0'}
@@ -2511,11 +2506,11 @@ snapshots:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.3.1(@types/node@24.13.6)
 
-  '@vitejs/plugin-vue@6.0.9(vite@8.3.1(@types/node@24.13.6))(vue@3.5.43(typescript@6.0.3))':
+  '@vitejs/plugin-vue@6.0.9(vite@8.3.1(@types/node@24.13.6))(vue@3.5.43(typescript@7.0.2))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.3.1(@types/node@24.13.6)
-      vue: 3.5.43(typescript@6.0.3)
+      vue: 3.5.43(typescript@7.0.2)
 
   '@vitest/mocker@5.0.2(vite@8.3.1(@types/node@24.13.6))':
     dependencies:
@@ -3050,8 +3045,6 @@ snapshots:
 
   tslib@2.8.1: {}
 
-  typescript@6.0.3: {}
-
   typescript@7.0.2:
     optionalDependencies:
       '@typescript/typescript-aix-ppc64': 7.0.2
@@ -3116,16 +3109,6 @@ snapshots:
       happy-dom: 20.14.5
     transitivePeerDependencies:
       - msw
-
-  vue@3.5.43(typescript@6.0.3):
-    dependencies:
-      '@vue/compiler-dom': 3.5.43
-      '@vue/compiler-sfc': 3.5.43
-      '@vue/runtime-dom': 3.5.43
-      '@vue/server-renderer': 3.5.43
-      '@vue/shared': 3.5.43
-    optionalDependencies:
-      typescript: 6.0.3
 
   vue@3.5.43(typescript@7.0.2):
     dependencies:
