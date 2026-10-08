@@ -37,7 +37,7 @@ export interface VersionCheckState<TLatest extends VersionPayload = VersionPaylo
 	/**
 	 * The error from the most recent failed check, when {@link status} is `"error"`.
 	 */
-	readonly error?: unknown | undefined;
+	readonly error?: unknown;
 	/**
 	 * Epoch milliseconds of the last completed check (success or error).
 	 */

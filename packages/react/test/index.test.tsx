@@ -11,6 +11,7 @@ import type {
 } from "@almeidx/version-check";
 import { createVersionChecker } from "@almeidx/version-check";
 import { render } from "@testing-library/react";
+import type { Mock } from "vitest";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { useVersionCheck } from "../src/index.js";
 
@@ -33,21 +34,26 @@ describe("useVersionCheck (react)", () => {
 		currentVersion: "current",
 		updateAvailable: false,
 	};
-	let checkers: VersionChecker[];
+	let checkers: {
+		readonly start: Mock<VersionChecker["start"]>;
+		readonly stop: Mock<VersionChecker["stop"]>;
+	}[];
 
 	beforeEach(() => {
 		checkers = [];
 		vi.mocked(createVersionChecker).mockImplementation(() => {
+			const start = vi.fn<VersionChecker["start"]>();
+			const stop = vi.fn<VersionChecker["stop"]>();
 			const checker: VersionChecker = {
-				start: vi.fn<VersionChecker["start"]>(),
-				stop: vi.fn<VersionChecker["stop"]>(),
+				start,
+				stop,
 				check: vi.fn<VersionChecker["check"]>(async () => state),
 				subscribe: vi.fn<VersionChecker["subscribe"]>(() => vi.fn<() => void>()),
 				getState: vi.fn<VersionChecker["getState"]>(() => state),
 				isRunning: vi.fn<VersionChecker["isRunning"]>(() => false),
 			};
 
-			checkers.push(checker);
+			checkers.push({ start, stop });
 			return checker;
 		});
 	});

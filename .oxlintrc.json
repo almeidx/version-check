@@ -1,10 +1,17 @@
 {
 	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"options": {
+		"typeAware": true
+	},
+	"plugins": ["eslint", "typescript", "unicorn", "oxc", "import", "react", "vitest", "jsx-a11y", "vue"],
 	"categories": {
 		"correctness": "error"
 	},
 	"ignorePatterns": ["dist", ".next", "coverage", "node_modules"],
 	"rules": {
-		"no-unused-vars": "error"
+		"typescript/no-base-to-string": "warn",
+		"typescript/no-misused-spread": "warn",
+		"typescript/no-redundant-type-constituents": "warn",
+		"typescript/unbound-method": "warn"
 	}
 }

@@ -4,8 +4,8 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "vite",
 		"build": "tsc --noEmit -p tsconfig.json && vite build",
+		"dev": "vite",
 		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {

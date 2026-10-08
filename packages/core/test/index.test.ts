@@ -161,7 +161,7 @@ describe("version comparison", () => {
 	test("allows custom comparison logic", () => {
 		expect(
 			isUpdateAvailable("2.0.0", "1.0.0", ({ currentVersion, latestVersion }) => {
-				return String(latestVersion) > String(currentVersion);
+				return JSON.stringify(latestVersion) > JSON.stringify(currentVersion);
 			}),
 		).toBe(false);
 	});

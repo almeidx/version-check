@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -142,6 +142,8 @@ describe("versionCheck", () => {
 
 	test("honors a custom build id resolver", async () => {
 		const root = await createTemporaryDirectory();
+		// Vite resolves the root through symlinks (e.g. /var -> /private/var on macOS).
+		const realRoot = await realpath(root);
 		await writeProjectFile(
 			root,
 			"entry.ts",
@@ -159,7 +161,7 @@ describe("versionCheck", () => {
 				plugins: [
 					versionCheck({
 						resolveBuildId: ({ root: resolvedRoot }) => {
-							expect(resolvedRoot).toBe(root);
+							expect(resolvedRoot).toBe(realRoot);
 							return "custom-resolved";
 						},
 					}),

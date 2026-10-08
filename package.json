@@ -21,16 +21,15 @@
 	"type": "module",
 	"scripts": {
 		"build": "pnpm -r --filter './packages/*' build && pnpm -r --filter './examples/*' build",
-		"dev": "pnpm --parallel --filter './packages/*' dev",
-		"test": "vitest run",
 		"build:typecheck": "pnpm -r typecheck",
-		"lint": "oxfmt --check && oxlint --import-plugin --react-plugin --vitest-plugin --jsx-a11y-plugin --vue-plugin",
-		"publint": "pnpm -r --filter './packages/*' exec publint",
-		"fmt": "oxfmt --write && oxlint --fix --import-plugin --react-plugin --vitest-plugin --jsx-a11y-plugin --vue-plugin",
-		"fmt:check": "oxfmt --check",
 		"check": "pnpm lint && pnpm build:typecheck && pnpm test && pnpm build && pnpm publint",
+		"dev": "pnpm --parallel --filter './packages/*' dev",
+		"fmt": "oxlint --fix && oxfmt",
 		"generate:version": "pnpm --filter @almeidx/version-check build && node packages/core/dist/cli.mjs generate",
-		"prepare": "husky .github/husky"
+		"lint": "oxlint && oxfmt --check",
+		"prepare": "husky .github/husky",
+		"publint": "pnpm -r --filter './packages/*' exec publint",
+		"test": "vitest run"
 	},
 	"devDependencies": {
 		"@types/node": "catalog:",
@@ -39,6 +38,7 @@
 		"nano-staged": "catalog:",
 		"oxfmt": "catalog:",
 		"oxlint": "catalog:",
+		"oxlint-tsgolint": "catalog:",
 		"publint": "catalog:",
 		"tsdown": "catalog:",
 		"typescript": "catalog:",

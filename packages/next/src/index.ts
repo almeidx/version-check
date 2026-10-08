@@ -98,11 +98,9 @@ export function createNextVersionHandler(options: CreateNextVersionHandlerOption
 	return async function GET(): Promise<Response> {
 		const buildId = await getNextBuildId(options);
 
-		return Response.json(createNextVersionPayload(buildId), {
-			headers: {
-				"Cache-Control": "no-store, no-cache, must-revalidate",
-				...options.headers,
-			},
-		});
+		const headers = new Headers({ "Cache-Control": "no-store, no-cache, must-revalidate" });
+		for (const [name, value] of new Headers(options.headers)) headers.set(name, value);
+
+		return Response.json(createNextVersionPayload(buildId), { headers });
 	};
 }
