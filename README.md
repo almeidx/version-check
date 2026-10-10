@@ -86,8 +86,8 @@ export default defineConfig({
 Read the same id from the virtual module in client code:
 
 ```ts
-import buildId from "virtual:version-check/build-id";
 import { createVersionChecker } from "@almeidx/version-check";
+import buildId from "virtual:version-check/build-id";
 
 const checker = createVersionChecker({
 	currentVersion: buildId,
