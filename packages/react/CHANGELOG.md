@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-11-18
+
+- deps: Lock file maintenance (#100)
+- deps: Update patch/minor dependencies (#99)
+- deps: Update Node.js to v26.13.1 (#98)
+- refactor: untangle the version file contract, build-id resolution, and adapters
+- deps: Lock file maintenance (#95)
+- deps: Update patch/minor dependencies (#92)
+- deps: Update dependency @types/node to v26 (#93)
+- deps: Update Node.js to v26 (#94)
+- deps: Lock file maintenance (#90)
+- deps: Update Node.js to v24.22.1 (#88)
+- deps: Update patch/minor dependencies (#89)
+- deps: Lock file maintenance (#87)
+- deps: Update dependency happy-dom to v21 (#86)
+- deps: Update Node.js to v24.22.0 (#85)
+- deps: Update patch/minor dependencies (#84)
+- deps: Lock file maintenance (#83)
+- deps: Update patch/minor dependencies (#82)
+- chore: update oxc config
+- deps: Lock file maintenance (#81)
+- deps: Update patch/minor dependencies (#80)
+- deps: Lock file maintenance (#79)
+- deps: Update dependency typescript to v7 (#78)
+- deps: Update patch/minor dependencies (#77)
+- chore: delete CLAUDE.md symlink
+- chore: adopt pnpm catalogs and isolate declaration builds
+- deps: Lock file maintenance (#76)
+- deps: Update patch/minor dependencies (#75)
+- deps: Lock file maintenance (#74)
+- deps: Update pnpm to v12 (#73)
+- deps: Update patch/minor dependencies (#71)
+- deps: Update Node.js to v24.21.0 (#72)
+- chore: remove redundant Vitest mock cleanup (#70)
+- deps: Lock file maintenance (#69)
+- deps: Update dependency vitest to v5 (#68)
+- deps: Update patch/minor dependencies (#67)
+
 ## [1.0.1] - 2026-09-02
 
 - deps: Update patch/minor dependencies (#65)
