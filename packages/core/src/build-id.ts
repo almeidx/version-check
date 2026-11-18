@@ -1,13 +1,19 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, extname, join } from "node:path";
+import { createVersionFileContent, versionFileName } from "./version-file.js";
+
+/** Environment variables consulted by {@link resolveBuildId}, in precedence order. */
+export const buildIdEnvironmentKeys = [
+	"VERSION_CHECK_BUILD_ID",
+	"SOURCE_COMMIT",
+	"VERCEL_GIT_COMMIT_SHA",
+	"CI_COMMIT_SHA",
+	"GITHUB_SHA",
+] as const;
 
 /** Environment variables consulted by {@link resolveBuildId}. */
 export type BuildIdEnvironment = {
-	readonly VERSION_CHECK_BUILD_ID?: string | undefined;
-	readonly SOURCE_COMMIT?: string | undefined;
-	readonly VERCEL_GIT_COMMIT_SHA?: string | undefined;
-	readonly CI_COMMIT_SHA?: string | undefined;
-	readonly GITHUB_SHA?: string | undefined;
+	readonly [Key in (typeof buildIdEnvironmentKeys)[number]]?: string | undefined;
 };
 
 /** Options for resolving the current deployment build id. */
@@ -37,34 +43,17 @@ export function normalizeBuildId(candidate: string | undefined): string | undefi
 /**
  * Resolves the current deployment build id.
  *
- * Precedence: explicit `buildId`, `VERSION_CHECK_BUILD_ID`, `SOURCE_COMMIT`,
- * `VERCEL_GIT_COMMIT_SHA`, `CI_COMMIT_SHA`, `GITHUB_SHA`, then `"local-dev"`.
+ * Precedence: explicit `buildId`, then {@link buildIdEnvironmentKeys} in order, then `"local-dev"`.
  */
 export async function resolveBuildId(options: ResolveBuildIdOptions = {}): Promise<string> {
 	const env = options.env ?? process.env;
-	const directBuildId = [
-		options.buildId,
-		env.VERSION_CHECK_BUILD_ID,
-		env.SOURCE_COMMIT,
-		env.VERCEL_GIT_COMMIT_SHA,
-		env.CI_COMMIT_SHA,
-		env.GITHUB_SHA,
-	].find((candidate) => normalizeBuildId(candidate) !== undefined);
 
-	if (directBuildId !== undefined) {
-		return normalizeBuildId(directBuildId)!;
+	for (const candidate of [options.buildId, ...buildIdEnvironmentKeys.map((key) => env[key])]) {
+		const buildId = normalizeBuildId(candidate);
+		if (buildId !== undefined) return buildId;
 	}
 
 	return "local-dev";
-}
-
-/** Creates the JSON content written to `version.json`. */
-export function createVersionFileContent(buildId: string): string {
-	return `${JSON.stringify({ buildId }, null, "\t")}\n`;
-}
-
-function resolveOutputFile(output: string): string {
-	return extname(output) === ".json" ? output : join(output, "version.json");
 }
 
 /**
@@ -73,7 +62,7 @@ function resolveOutputFile(output: string): string {
  * @returns The file path that was written.
  */
 export async function writeVersionFile(options: WriteVersionFileOptions): Promise<string> {
-	const outputFile = resolveOutputFile(options.output);
+	const outputFile = extname(options.output) === ".json" ? options.output : join(options.output, versionFileName);
 	const buildId = await resolveBuildId(options);
 
 	await mkdir(dirname(outputFile), { recursive: true });

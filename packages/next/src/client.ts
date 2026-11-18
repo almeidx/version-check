@@ -2,12 +2,11 @@
 
 export * from "@almeidx/version-check";
 
-import type { VersionPayload } from "@almeidx/version-check";
+import type { BuildIdPayload, VersionPayload } from "@almeidx/version-check";
 import { useVersionCheck, type UseVersionCheckOptions, type UseVersionCheckResult } from "@almeidx/version-check-react";
-import type { NextVersionPayload } from "./index.js";
 
 /** Options for {@link useNextVersionCheck}: {@link UseVersionCheckOptions} with `endpoint` defaulting to `/api/version`. */
-export type UseNextVersionCheckOptions<TLatest extends VersionPayload = NextVersionPayload> = Omit<
+export type UseNextVersionCheckOptions<TLatest extends VersionPayload = BuildIdPayload> = Omit<
 	UseVersionCheckOptions<TLatest>,
 	"endpoint"
 > & {
@@ -23,11 +22,11 @@ export type UseNextVersionCheckOptions<TLatest extends VersionPayload = NextVers
  * Next.js client hook wrapping {@link useVersionCheck} with the endpoint defaulting to `/api/version`,
  * matching {@link createNextVersionHandler}.
  */
-export function useNextVersionCheck<TLatest extends VersionPayload = NextVersionPayload>(
+export function useNextVersionCheck<TLatest extends VersionPayload = BuildIdPayload>(
 	options: UseNextVersionCheckOptions<TLatest>,
 ): UseVersionCheckResult<TLatest> {
 	return useVersionCheck<TLatest>({
-		endpoint: "/api/version",
 		...options,
+		endpoint: options.endpoint ?? "/api/version",
 	});
 }

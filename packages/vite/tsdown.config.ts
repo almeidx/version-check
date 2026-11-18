@@ -8,7 +8,4 @@ export default defineConfig({
 	clean: true,
 	target: "es2022",
 	copy: [{ from: "src/virtual.d.ts", flatten: true }],
-	deps: {
-		neverBundle: ["vite", "@almeidx/version-check", "@almeidx/version-check/build", /^node:/],
-	},
 });

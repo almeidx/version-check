@@ -2,12 +2,10 @@ export * from "@almeidx/version-check";
 
 import { readFile } from "node:fs/promises";
 import { isAbsolute, join } from "node:path";
+import { versionCacheControl, type BuildIdPayload } from "@almeidx/version-check/build";
 
-/** Version payload served by {@link createNextVersionHandler}. */
-export type NextVersionPayload = {
-	/** The Next.js build id (contents of `.next/BUILD_ID`). */
-	readonly buildId: string;
-};
+/** Version payload served by {@link createNextVersionHandler}; `buildId` is the contents of `.next/BUILD_ID`. */
+export type NextVersionPayload = BuildIdPayload;
 
 /** Options for {@link getNextBuildId}. */
 export type GetNextBuildIdOptions = {
@@ -98,7 +96,7 @@ export function createNextVersionHandler(options: CreateNextVersionHandlerOption
 	return async function GET(): Promise<Response> {
 		const buildId = await getNextBuildId(options);
 
-		const headers = new Headers({ "Cache-Control": "no-store, no-cache, must-revalidate" });
+		const headers = new Headers({ "Cache-Control": versionCacheControl });
 		for (const [name, value] of new Headers(options.headers)) headers.set(name, value);
 
 		return Response.json(createNextVersionPayload(buildId), { headers });

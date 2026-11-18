@@ -50,8 +50,8 @@
 		},
 		"./build": {
 			"import": {
-				"types": "./dist/build-id.d.mts",
-				"default": "./dist/build-id.mjs"
+				"types": "./dist/build.d.mts",
+				"default": "./dist/build.mjs"
 			}
 		}
 	},

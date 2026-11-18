@@ -22,6 +22,7 @@ async function flushMicrotasks(): Promise<void> {
 
 describe("useVersionCheck (vue)", () => {
 	afterEach(() => {
+		vi.useRealTimers();
 		vi.unstubAllGlobals();
 		vi.restoreAllMocks();
 	});
@@ -37,30 +38,36 @@ describe("useVersionCheck (vue)", () => {
 		expect(state.value.status).toBe("idle");
 	});
 
-	test("starts on the client and disposes with its effect scope", async () => {
+	test("starts on the client and stops polling when its effect scope is disposed", async () => {
+		vi.useFakeTimers();
 		vi.stubGlobal("window", fakeBrowserWindow());
 		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 		const fetcher = vi.fn<() => Promise<string>>(async () => "1");
 
 		const scope = effectScope();
-		const result = scope.run(() => useVersionCheck({ currentVersion: "1", intervalMs: 0, fetcher }))!;
+		const result = scope.run(() => useVersionCheck({ currentVersion: "1", intervalMs: 1000, fetcher }))!;
 		await flushMicrotasks();
 
 		expect(fetcher).toHaveBeenCalledTimes(1);
 		expect(result.state.value.status).toBe("current");
 		expect(warn).not.toHaveBeenCalled();
 
-		expect(() => scope.stop()).not.toThrow();
+		scope.stop();
+		await vi.advanceTimersByTimeAsync(3000);
+		expect(fetcher).toHaveBeenCalledTimes(1);
 	});
 
-	test("warns and returns stop() when used outside an effect scope", () => {
+	test("warns outside an effect scope and stops polling on stop()", async () => {
+		vi.useFakeTimers();
 		vi.stubGlobal("window", fakeBrowserWindow());
 		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 		const fetcher = vi.fn<() => Promise<string>>(async () => "1");
 
-		const { stop } = useVersionCheck({ currentVersion: "1", intervalMs: 0, fetcher });
-
+		const { stop } = useVersionCheck({ currentVersion: "1", intervalMs: 1000, fetcher });
 		expect(warn).toHaveBeenCalledOnce();
-		expect(() => stop()).not.toThrow();
+
+		stop();
+		await vi.advanceTimersByTimeAsync(3000);
+		expect(fetcher).toHaveBeenCalledTimes(1);
 	});
 });

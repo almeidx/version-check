@@ -1,4 +1,4 @@
 #!/usr/bin/env node
-import { runCli } from "../dist/cli.mjs";
+import { runCli } from "@almeidx/version-check/cli";
 
 process.exitCode = await runCli();

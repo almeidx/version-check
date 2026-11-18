@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
-import { createNextVersionHandler, createNextVersionPayload, getNextBuildId } from "../src/index.js";
+import { createNextVersionHandler, getNextBuildId } from "../src/index.js";
 
 const tmpdirs: string[] = [];
 
@@ -76,12 +76,6 @@ describe("getNextBuildId", () => {
 		await writeFile(join(tmp, "abs-id"), "abs-build");
 
 		await expect(getNextBuildId({ buildIdFile: join(tmp, "abs-id") })).resolves.toBe("abs-build");
-	});
-});
-
-describe("createNextVersionPayload", () => {
-	test("returns an object with the given buildId", () => {
-		expect(createNextVersionPayload("x")).toEqual({ buildId: "x" });
 	});
 });
 

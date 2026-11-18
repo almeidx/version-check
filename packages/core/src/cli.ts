@@ -1,12 +1,6 @@
-#!/usr/bin/env node
-import { pathToFileURL } from "node:url";
 import { parseArgs as parseNodeArgs } from "node:util";
-import { writeVersionFile } from "./build-id.js";
-
-type GenerateOptions = {
-	readonly output: string;
-	readonly buildId?: string | undefined;
-};
+import { writeVersionFile, type WriteVersionFileOptions } from "./build-id.js";
+import { versionFileName } from "./version-file.js";
 
 const usage = `Usage:
   version-check generate [output]
@@ -15,9 +9,9 @@ Options:
   --build-id <id>  Use an explicit build id instead of deployment environment metadata.
   -h, --help       Show this help message.
 
-The output defaults to public/version.json. If output is a directory, version.json is written inside it.`;
+The output defaults to public/${versionFileName}. If output is a directory, ${versionFileName} is written inside it.`;
 
-function parseCliArgs(args: readonly string[]): GenerateOptions | "help" {
+function parseCliArgs(args: readonly string[]): WriteVersionFileOptions | "help" {
 	const { positionals, values } = parseNodeArgs({
 		args,
 		allowPositionals: true,
@@ -36,17 +30,14 @@ function parseCliArgs(args: readonly string[]): GenerateOptions | "help" {
 		return "help";
 	}
 
-	// `generate` is the only command, and it is optional: `version-check [generate] [output]`.
 	const operands = positionals[0] === "generate" ? positionals.slice(1) : positionals;
 	if (operands.length > 1) {
 		throw new Error(`Unexpected positional arguments: ${operands.join(" ")}`);
 	}
 
-	const buildId = values["build-id"];
-
 	return {
 		output: operands[0] ?? "public",
-		...(buildId === undefined ? {} : { buildId }),
+		buildId: values["build-id"],
 	};
 }
 
@@ -74,13 +65,4 @@ export async function runCli(args: readonly string[] = process.argv.slice(2)): P
 		console.error(usage);
 		return 1;
 	}
-}
-
-function isDirectlyExecuted(): boolean {
-	const entrypoint = process.argv[1];
-	return entrypoint !== undefined && import.meta.url === pathToFileURL(entrypoint).href;
-}
-
-if (isDirectlyExecuted()) {
-	process.exitCode = await runCli();
 }

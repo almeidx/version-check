@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { createVersionFileContent, normalizeBuildId, writeVersionFile } from "../src/build-id.js";
+import { createVersionFileContent, normalizeBuildId, writeVersionFile } from "../src/build.js";
 import { runCli } from "../src/cli.js";
 
 describe("writeVersionFile", () => {

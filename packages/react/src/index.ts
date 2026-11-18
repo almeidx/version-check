@@ -4,15 +4,11 @@ export * from "@almeidx/version-check";
 
 import {
 	createVersionChecker,
-	fetchJsonVersion,
-	isUpdateAvailable,
-	type VersionComparator,
 	type VersionCheckOptions,
 	type VersionCheckState,
-	type VersionFetcher,
 	type VersionPayload,
 } from "@almeidx/version-check";
-import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useSyncExternalStore } from "react";
 
 /** Options for {@link useVersionCheck}: {@link VersionCheckOptions} without `autoStart` (the hook owns the lifecycle). */
 export type UseVersionCheckOptions<TLatest extends VersionPayload = VersionPayload> = Omit<
@@ -45,85 +41,61 @@ export function useVersionCheck<TLatest extends VersionPayload = VersionPayload>
 	options: UseVersionCheckOptions<TLatest>,
 ): UseVersionCheckResult<TLatest> {
 	const {
-		checkImmediately,
+		// Pushed to the live checker after every render, so changing them never recreates it.
 		compare,
-		currentVersion,
-		endpoint,
 		fetch,
 		fetcher,
+		now,
+		requestInit,
+		// Changing any of these recreates the checker.
+		checkImmediately,
+		currentVersion,
+		endpoint,
 		getWindow,
 		intervalMs,
 		minIntervalMs,
-		now,
 		pauseWhenHidden,
 		refetchOnReconnect,
 		refetchOnVisibilityChange,
 		refetchOnWindowFocus,
-		requestInit,
+		...unclassifiedOptions
 	} = options;
-
-	const latestOptions = { compare, fetch, fetcher, now, requestInit };
-	const latestOptionsRef = useRef(latestOptions);
-
-	useEffect(() => {
-		latestOptionsRef.current = latestOptions;
-	});
-
-	const latestFetcher = useCallback<VersionFetcher<TLatest>>(async (context) => {
-		const { fetch, fetcher, requestInit } = latestOptionsRef.current;
-		const nextContext = { ...context, fetch, requestInit };
-
-		if (fetcher !== undefined) {
-			return fetcher(nextContext);
-		}
-
-		return fetchJsonVersion<TLatest>(nextContext);
-	}, []);
-
-	const latestCompare = useCallback<VersionComparator<TLatest>>(
-		({ currentVersion, latestVersion }) =>
-			isUpdateAvailable(currentVersion, latestVersion, latestOptionsRef.current.compare),
-		[],
-	);
-
-	const latestNow = useCallback(() => latestOptionsRef.current.now?.() ?? Date.now(), []);
+	// Fails to compile when a new core option is not classified above.
+	unclassifiedOptions satisfies Record<string, never>;
 
 	const checker = useMemo(
 		() =>
-			// The checker only stores these callbacks; with autoStart disabled none of them run during render.
-			// oxlint-disable-next-line react/refs
 			createVersionChecker<TLatest>({
 				currentVersion,
 				autoStart: false,
 				endpoint,
 				intervalMs,
 				minIntervalMs,
-				fetcher: latestFetcher,
-				compare: latestCompare,
 				checkImmediately,
 				pauseWhenHidden,
 				refetchOnWindowFocus,
 				refetchOnVisibilityChange,
 				refetchOnReconnect,
 				getWindow,
-				now: latestNow,
 			}),
 		[
 			currentVersion,
 			endpoint,
 			intervalMs,
 			minIntervalMs,
-			latestFetcher,
-			latestCompare,
 			checkImmediately,
 			pauseWhenHidden,
 			refetchOnWindowFocus,
 			refetchOnVisibilityChange,
 			refetchOnReconnect,
 			getWindow,
-			latestNow,
 		],
 	);
+
+	// Declared before the start effect so the first check already uses this render's options.
+	useEffect(() => {
+		checker.setOptions({ compare, fetch, fetcher, now, requestInit });
+	});
 
 	const subscribe = useCallback((onStoreChange: () => void) => checker.subscribe(() => onStoreChange()), [checker]);
 	const getSnapshot = useCallback(() => checker.getState(), [checker]);

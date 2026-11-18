@@ -56,13 +56,14 @@ export function useVersionCheck<TLatest extends VersionPayload = VersionPayload>
 
 	// Only poll in the browser. During SSR (Nuxt) `start()` would fire a fetch and an interval on the
 	// server that never gets cleaned up.
-	if (typeof window !== "undefined") {
+	const isBrowser = typeof window !== "undefined";
+	if (isBrowser) {
 		checker.start();
 	}
 
 	if (getCurrentScope() !== undefined) {
 		onScopeDispose(stop);
-	} else if (typeof window !== "undefined") {
+	} else if (isBrowser) {
 		console.warn(
 			"[version-check] useVersionCheck() was called outside an active effect scope, so it will not be " +
 				"disposed automatically. Call the returned stop() when you are done to avoid leaking the poller.",

@@ -1,62 +1,37 @@
-import type { UseVersionCheckResult } from "@almeidx/version-check-react";
-import { useVersionCheck } from "@almeidx/version-check-react";
-import { describe, expect, test, vi } from "vitest";
+/**
+ * @vitest-environment happy-dom
+ */
+
+import { act, renderHook } from "@testing-library/react";
+import { describe, expect, test } from "vitest";
 import { useNextVersionCheck } from "../src/client.js";
 
-const reactMocks = vi.hoisted(() => ({
-	useVersionCheck: vi.fn<typeof useVersionCheck>(),
-}));
+async function requestedEndpoint(endpoint: string | undefined): Promise<string | undefined> {
+	let requested: string | undefined;
 
-vi.mock("@almeidx/version-check-react", async (importOriginal) => {
-	const actual = await importOriginal<typeof import("@almeidx/version-check-react")>();
+	const { unmount } = renderHook(() =>
+		useNextVersionCheck({
+			currentVersion: "1",
+			endpoint,
+			intervalMs: 0,
+			fetcher: async (context) => {
+				requested = String(context.endpoint);
+				return { buildId: "1" };
+			},
+		}),
+	);
+	await act(async () => {});
+	unmount();
 
-	return {
-		...actual,
-		useVersionCheck: reactMocks.useVersionCheck,
-	};
-});
-
-const stubResult: UseVersionCheckResult = {
-	status: "idle",
-	currentVersion: "current",
-	updateAvailable: false,
-	check: async () => ({ status: "idle", currentVersion: "current", updateAvailable: false }),
-};
+	return requested;
+}
 
 describe("useNextVersionCheck", () => {
-	test("defaults the endpoint to /api/version", () => {
-		reactMocks.useVersionCheck.mockReturnValue(stubResult);
-
-		useNextVersionCheck({ currentVersion: "1" });
-
-		expect(reactMocks.useVersionCheck).toHaveBeenCalledOnce();
-		expect(reactMocks.useVersionCheck).toHaveBeenCalledWith(
-			expect.objectContaining({ endpoint: "/api/version", currentVersion: "1" }),
-		);
+	test("polls /api/version by default", async () => {
+		await expect(requestedEndpoint(undefined)).resolves.toBe("/api/version");
 	});
 
-	test("endpoint override wins over the default", () => {
-		reactMocks.useVersionCheck.mockReturnValue(stubResult);
-
-		useNextVersionCheck({ currentVersion: "1", endpoint: "/custom" });
-
-		expect(reactMocks.useVersionCheck).toHaveBeenCalledOnce();
-		expect(reactMocks.useVersionCheck).toHaveBeenCalledWith(expect.objectContaining({ endpoint: "/custom" }));
-	});
-
-	test("passes extra options through unchanged", () => {
-		reactMocks.useVersionCheck.mockReturnValue(stubResult);
-
-		useNextVersionCheck({ currentVersion: "1", intervalMs: 5000 });
-
-		expect(reactMocks.useVersionCheck).toHaveBeenCalledWith(expect.objectContaining({ intervalMs: 5000 }));
-	});
-
-	test("returns the inner hook's result", () => {
-		reactMocks.useVersionCheck.mockReturnValue(stubResult);
-
-		const result = useNextVersionCheck({ currentVersion: "1" });
-
-		expect(result).toBe(stubResult);
+	test("polls an explicit endpoint", async () => {
+		await expect(requestedEndpoint("/custom")).resolves.toBe("/custom");
 	});
 });

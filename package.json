@@ -25,7 +25,7 @@
 		"check": "pnpm lint && pnpm build:typecheck && pnpm test && pnpm build && pnpm publint",
 		"dev": "pnpm --parallel --filter './packages/*' dev",
 		"fmt": "oxlint --fix && oxfmt",
-		"generate:version": "pnpm --filter @almeidx/version-check build && node packages/core/dist/cli.mjs generate",
+		"generate:version": "pnpm --filter @almeidx/version-check build && node packages/core/bin/version-check.mjs generate",
 		"lint": "oxlint && oxfmt --check",
 		"prepare": "husky .github/husky",
 		"publint": "pnpm -r --filter './packages/*' exec publint",

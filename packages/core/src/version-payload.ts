@@ -1,4 +1,3 @@
-// Object payload keys checked, in order, when resolving a deployment identity.
 const versionIdKeys = ["version", "buildId", "id", "hash", "sha"] as const;
 
 /**

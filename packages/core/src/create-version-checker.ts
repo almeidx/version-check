@@ -1,7 +1,17 @@
 import { isUpdateAvailable, type VersionComparator } from "./compare.js";
-import { defaultLifecycleMinIntervalMs, defaultPollIntervalMs, defaultVersionEndpoint } from "./constants.js";
 import { fetchJsonVersion, type VersionFetcher } from "./fetch-json-version.js";
+import { defaultVersionEndpoint } from "./version-file.js";
 import type { VersionPayload } from "./version-payload.js";
+
+/**
+ * Default polling interval in milliseconds.
+ */
+export const defaultPollIntervalMs = 30 * 60 * 1000;
+
+/**
+ * Default minimum interval between lifecycle-triggered checks in milliseconds.
+ */
+export const defaultLifecycleMinIntervalMs = 60 * 1000;
 
 /**
  * Lifecycle status of a {@link VersionChecker}:
@@ -153,6 +163,15 @@ export interface VersionCheckOptions<TLatest extends VersionPayload = VersionPay
 }
 
 /**
+ * The {@link VersionCheckOptions} that only affect how a single check runs, so they can be replaced
+ * on a live checker with {@link VersionChecker.setOptions}.
+ */
+export type VersionCheckLiveOptions<TLatest extends VersionPayload = VersionPayload> = Pick<
+	VersionCheckOptions<TLatest>,
+	"compare" | "fetch" | "fetcher" | "now" | "requestInit"
+>;
+
+/**
  * Controls a version-checking lifecycle. Created by {@link createVersionChecker}.
  */
 export interface VersionChecker<TLatest extends VersionPayload = VersionPayload> {
@@ -180,6 +199,11 @@ export interface VersionChecker<TLatest extends VersionPayload = VersionPayload>
 	 * Whether the checker is currently running.
 	 */
 	isRunning(): boolean;
+	/**
+	 * Replace the {@link VersionCheckLiveOptions} used by subsequent checks, without restarting.
+	 * Omitted options revert to their defaults.
+	 */
+	setOptions(options: VersionCheckLiveOptions<TLatest>): void;
 }
 
 /**
@@ -211,30 +235,32 @@ export function createVersionChecker<TLatest extends VersionPayload = VersionPay
 	const intervalMs = options.intervalMs ?? defaultPollIntervalMs;
 	const minIntervalMs = options.minIntervalMs ?? defaultLifecycleMinIntervalMs;
 	const pauseWhenHidden = options.pauseWhenHidden !== false;
-	const now = options.now ?? Date.now;
 	const listeners = new Set<VersionCheckListener<TLatest>>();
 	const disposeBrowserListeners = new Set<() => void>();
+	let liveOptions: VersionCheckLiveOptions<TLatest> = options;
 
 	let timer: ReturnType<typeof setInterval> | undefined;
 	let running = false;
 	let abortController: AbortController | undefined;
 	let lastCheckStartedAt: number | undefined;
-	let currentWindow: Window | undefined;
 	let state: VersionCheckState<TLatest> = {
 		status: "idle",
 		currentVersion: options.currentVersion,
 		updateAvailable: false,
 	};
 
+	function now(): number {
+		return (liveOptions.now ?? Date.now)();
+	}
+
 	function emit(nextState: VersionCheckState<TLatest>): void {
 		state = nextState;
 
 		for (const listener of listeners) {
+			// Runs inside check()'s try: a throwing subscriber must neither stop delivery nor fail the check.
 			try {
 				listener(state);
 			} catch (error) {
-				// A subscriber threw: don't let it stop delivery to the others or get misattributed
-				// to a failed check (this runs inside check()'s try). Surface it out of band instead.
 				reportListenerError(error);
 			}
 		}
@@ -258,19 +284,17 @@ export function createVersionChecker<TLatest extends VersionPayload = VersionPay
 		setState({ status: "checking", error: undefined });
 
 		try {
-			const fetcher = options.fetcher ?? fetchJsonVersion<TLatest>;
+			const { fetch, fetcher = fetchJsonVersion<TLatest>, requestInit } = liveOptions;
 			const latestVersion = await fetcher({
 				endpoint,
 				signal: ownController.signal,
-				requestInit: options.requestInit,
-				fetch: options.fetch,
+				requestInit,
+				fetch,
 			});
 
-			// A newer check() (or stop()) superseded this one. The latest check owns the state, so
-			// returning without touching it avoids emitting a stale, out-of-order intermediate state.
 			if (ownController.signal.aborted) return state;
 
-			const updateAvailable = isUpdateAvailable(options.currentVersion, latestVersion, options.compare);
+			const updateAvailable = isUpdateAvailable(options.currentVersion, latestVersion, liveOptions.compare);
 
 			setState({
 				status: updateAvailable ? "update-available" : "current",
@@ -297,12 +321,9 @@ export function createVersionChecker<TLatest extends VersionPayload = VersionPay
 	}
 
 	function checkFromLifecycle(): void {
-		// Collapse bursts of lifecycle events (focus + online + visibilitychange often fire together,
-		// e.g. when resuming from sleep) rather than starting overlapping checks that abort each other.
+		// focus, online, and visibilitychange often fire together (e.g. resuming from sleep).
 		if (state.status === "checking") return;
-		if (minIntervalMs > 0 && lastCheckStartedAt !== undefined && now() - lastCheckStartedAt < minIntervalMs) {
-			return;
-		}
+		if (lastCheckStartedAt !== undefined && now() - lastCheckStartedAt < minIntervalMs) return;
 
 		void check();
 	}
@@ -322,26 +343,18 @@ export function createVersionChecker<TLatest extends VersionPayload = VersionPay
 		}
 	}
 
-	function addEventListener(target: EventTarget | undefined, eventName: string, listener: EventListener): void {
-		if (target === undefined) return;
-
+	function addEventListener(target: EventTarget, eventName: string, listener: EventListener): void {
 		target.addEventListener(eventName, listener);
 		disposeBrowserListeners.add(() => target.removeEventListener(eventName, listener));
 	}
 
-	function isHidden(): boolean {
-		return currentWindow?.document?.visibilityState === "hidden";
-	}
-
-	function addBrowserListeners(): void {
-		if (currentWindow === undefined) return;
-
+	function addBrowserListeners(currentWindow: Window): void {
 		if (options.refetchOnWindowFocus !== false) {
-			addEventListener(currentWindow, "focus", () => checkFromLifecycle());
+			addEventListener(currentWindow, "focus", checkFromLifecycle);
 		}
 
 		if (options.refetchOnReconnect !== false) {
-			addEventListener(currentWindow, "online", () => checkFromLifecycle());
+			addEventListener(currentWindow, "online", checkFromLifecycle);
 		}
 
 		const refetchOnVisible = options.refetchOnVisibilityChange !== false;
@@ -364,12 +377,11 @@ export function createVersionChecker<TLatest extends VersionPayload = VersionPay
 		if (running) return;
 
 		running = true;
-		currentWindow = options.getWindow?.() ?? getGlobalWindow();
-		addBrowserListeners();
+		const currentWindow = options.getWindow?.() ?? getGlobalWindow();
+		if (currentWindow !== undefined) addBrowserListeners(currentWindow);
 
-		// While hidden (and pausing is enabled) defer the timer and the initial check until the
-		// document becomes visible, instead of polling a backgrounded tab.
-		if (!(pauseWhenHidden && isHidden())) {
+		// A hidden tab defers the timer and the initial check until the visibilitychange listener runs.
+		if (!(pauseWhenHidden && currentWindow?.document?.visibilityState === "hidden")) {
 			startTimer();
 
 			if (options.checkImmediately !== false) {
@@ -389,9 +401,7 @@ export function createVersionChecker<TLatest extends VersionPayload = VersionPay
 
 		abortController?.abort();
 		abortController = undefined;
-		currentWindow = undefined;
 
-		// Aborting an in-flight check above leaves the status stuck on "checking"; settle it back.
 		if (state.status === "checking") {
 			setState({ status: settledStatus(), error: undefined });
 		}
@@ -411,6 +421,9 @@ export function createVersionChecker<TLatest extends VersionPayload = VersionPay
 		subscribe,
 		getState: () => state,
 		isRunning: () => running,
+		setOptions(nextOptions) {
+			liveOptions = nextOptions;
+		},
 	};
 
 	if (options.autoStart === true) {

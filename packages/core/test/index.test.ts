@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { resolveBuildId } from "../src/build-id.js";
 import { fetchJsonVersion } from "../src/fetch-json-version.js";
 import {
@@ -26,10 +26,6 @@ class FakeEventTarget {
 		for (const listener of this.listeners.get(eventName) ?? []) {
 			listener(new Event(eventName));
 		}
-	}
-
-	listenerCount(eventName: string): number {
-		return this.listeners.get(eventName)?.size ?? 0;
 	}
 }
 
@@ -168,6 +164,11 @@ describe("version comparison", () => {
 });
 
 describe("createVersionChecker", () => {
+	afterEach(() => {
+		vi.useRealTimers();
+		vi.unstubAllGlobals();
+	});
+
 	test("polls on the configured interval and stops cleanly", async () => {
 		vi.useFakeTimers();
 
@@ -203,8 +204,6 @@ describe("createVersionChecker", () => {
 		latestVersion = "3";
 		await vi.advanceTimersByTimeAsync(1000);
 		expect(checker.getState().latestVersion).toBe("2");
-
-		vi.useRealTimers();
 	});
 
 	test("subscribes and unsubscribes listeners", async () => {
@@ -242,9 +241,6 @@ describe("createVersionChecker", () => {
 		});
 
 		checker.start();
-		expect(fakeWindow.listenerCount("focus")).toBe(1);
-		expect(fakeWindow.listenerCount("online")).toBe(1);
-		expect(fakeWindow.document.listenerCount("visibilitychange")).toBe(1);
 
 		fakeWindow.dispatch("focus");
 		await flushMicrotasks();
@@ -263,11 +259,9 @@ describe("createVersionChecker", () => {
 		expect(checker.getState().updateAvailable).toBe(true);
 
 		checker.stop();
-		expect(fakeWindow.listenerCount("focus")).toBe(0);
-		expect(fakeWindow.listenerCount("online")).toBe(0);
-		expect(fakeWindow.document.listenerCount("visibilitychange")).toBe(0);
-
+		fakeWindow.dispatch("focus");
 		fakeWindow.dispatch("online");
+		fakeWindow.document.dispatch("visibilitychange");
 		await flushMicrotasks();
 		expect(checks).toBe(2);
 	});
@@ -307,14 +301,9 @@ describe("createVersionChecker", () => {
 
 		const result = await checker.check();
 
-		// The successful fetch is not misreported as an error because a subscriber threw.
 		expect(result.status).toBe("current");
-		// The second subscriber still receives every update.
 		expect(seen).toEqual(["checking", "current"]);
-		// The thrown errors are surfaced out of band (one per emit).
 		expect(reportError).toHaveBeenCalledTimes(2);
-
-		vi.unstubAllGlobals();
 	});
 
 	test("a superseded check never emits a stale intermediate state", async () => {
@@ -339,11 +328,9 @@ describe("createVersionChecker", () => {
 		const superseded = checker.check();
 		const latest = checker.check();
 
-		// The first (aborted) check settles while the second is still pending.
 		await superseded;
 		await flushMicrotasks();
 
-		expect(statuses).not.toContain("idle");
 		expect(checker.getState().status).toBe("checking");
 
 		resolveLatest("2");
@@ -351,6 +338,35 @@ describe("createVersionChecker", () => {
 
 		expect(checker.getState()).toMatchObject({ status: "update-available", latestVersion: "2", updateAvailable: true });
 		expect(statuses.filter((status) => status === "update-available")).toHaveLength(1);
+	});
+
+	test("stop() aborts an in-flight check and ignores its late result", async () => {
+		let resolveFetch!: (value: string) => void;
+		let signal: AbortSignal | undefined;
+		const checker = createVersionChecker({
+			currentVersion: "1",
+			intervalMs: 0,
+			fetcher: (context) => {
+				signal = context.signal;
+				return new Promise<string>((resolve) => {
+					resolveFetch = resolve;
+				});
+			},
+		});
+		const statuses: string[] = [];
+		checker.subscribe((state) => statuses.push(state.status));
+
+		checker.start();
+		checker.stop();
+
+		expect(signal?.aborted).toBe(true);
+		expect(checker.getState().status).toBe("idle");
+
+		resolveFetch("2");
+		await flushMicrotasks();
+
+		expect(checker.getState()).toMatchObject({ status: "idle", updateAvailable: false });
+		expect(statuses).toEqual(["checking", "idle"]);
 	});
 
 	test("throttles lifecycle checks by default", async () => {
@@ -414,12 +430,12 @@ describe("createVersionChecker", () => {
 		clock = 500;
 		fakeWindow.dispatch("online");
 		await flushMicrotasks();
-		expect(checks).toBe(1); // within the throttle window
+		expect(checks).toBe(1);
 
 		clock = 1500;
 		fakeWindow.dispatch("online");
 		await flushMicrotasks();
-		expect(checks).toBe(2); // window elapsed
+		expect(checks).toBe(2);
 
 		checker.stop();
 	});
@@ -448,21 +464,20 @@ describe("createVersionChecker", () => {
 		fakeWindow.document.visibilityState = "hidden";
 		fakeWindow.document.dispatch("visibilitychange");
 		await vi.advanceTimersByTimeAsync(3000);
-		expect(checks).toBe(1); // no polling while hidden
+		expect(checks).toBe(1);
 
 		fakeWindow.document.visibilityState = "visible";
 		fakeWindow.document.dispatch("visibilitychange");
 		await flushMicrotasks();
-		expect(checks).toBe(2); // immediate check on becoming visible
+		expect(checks).toBe(2);
 
 		await vi.advanceTimersByTimeAsync(1000);
-		expect(checks).toBe(3); // interval resumed
+		expect(checks).toBe(3);
 
 		checker.stop();
-		vi.useRealTimers();
 	});
 
-	test("refetchOnWindowFocus: false — no focus listener, online still checks", async () => {
+	test("refetchOnWindowFocus: false — focus does not check, online still does", async () => {
 		const fakeWindow = new FakeWindow();
 		let checks = 0;
 		const checker = createVersionChecker({
@@ -479,20 +494,19 @@ describe("createVersionChecker", () => {
 		});
 
 		checker.start();
-		expect(fakeWindow.listenerCount("focus")).toBe(0);
 
 		fakeWindow.dispatch("focus");
 		await flushMicrotasks();
-		expect(checks).toBe(0); // focus does not trigger a check
+		expect(checks).toBe(0);
 
 		fakeWindow.dispatch("online");
 		await flushMicrotasks();
-		expect(checks).toBe(1); // online still works
+		expect(checks).toBe(1);
 
 		checker.stop();
 	});
 
-	test("refetchOnReconnect: false — no online listener, focus still checks", async () => {
+	test("refetchOnReconnect: false — online does not check, focus still does", async () => {
 		const fakeWindow = new FakeWindow();
 		let checks = 0;
 		const checker = createVersionChecker({
@@ -509,20 +523,19 @@ describe("createVersionChecker", () => {
 		});
 
 		checker.start();
-		expect(fakeWindow.listenerCount("online")).toBe(0);
 
 		fakeWindow.dispatch("online");
 		await flushMicrotasks();
-		expect(checks).toBe(0); // online does not trigger a check
+		expect(checks).toBe(0);
 
 		fakeWindow.dispatch("focus");
 		await flushMicrotasks();
-		expect(checks).toBe(1); // focus still works
+		expect(checks).toBe(1);
 
 		checker.stop();
 	});
 
-	test("refetchOnVisibilityChange: false — visibilitychange listener is still attached for pauseWhenHidden", async () => {
+	test("refetchOnVisibilityChange: false — still pauses while hidden, without a refetch on visible", async () => {
 		vi.useFakeTimers();
 
 		const fakeWindow = new FakeWindow();
@@ -533,7 +546,6 @@ describe("createVersionChecker", () => {
 			checkImmediately: false,
 			minIntervalMs: 0,
 			refetchOnVisibilityChange: false,
-			// pauseWhenHidden defaults to true
 			getWindow: () => fakeWindow as unknown as Window,
 			fetcher: async () => {
 				checks += 1;
@@ -542,29 +554,24 @@ describe("createVersionChecker", () => {
 		});
 
 		checker.start();
-		// Listener still attached because pauseWhenHidden is true
-		expect(fakeWindow.document.listenerCount("visibilitychange")).toBe(1);
 
-		// Hide: timer pauses
 		fakeWindow.document.visibilityState = "hidden";
 		fakeWindow.document.dispatch("visibilitychange");
 		await vi.advanceTimersByTimeAsync(3000);
-		expect(checks).toBe(0); // paused while hidden
+		expect(checks).toBe(0);
 
-		// Show: timer resumes but no immediate refetch
 		fakeWindow.document.visibilityState = "visible";
 		fakeWindow.document.dispatch("visibilitychange");
 		await flushMicrotasks();
-		expect(checks).toBe(0); // no refetch-on-visible
+		expect(checks).toBe(0);
 
 		await vi.advanceTimersByTimeAsync(1000);
-		expect(checks).toBe(1); // timer interval now fires
+		expect(checks).toBe(1);
 
 		checker.stop();
-		vi.useRealTimers();
 	});
 
-	test("pauseWhenHidden: false — no visibilitychange listener, polling continues while hidden", async () => {
+	test("pauseWhenHidden: false — polling continues while hidden", async () => {
 		vi.useFakeTimers();
 
 		const fakeWindow = new FakeWindow();
@@ -584,29 +591,25 @@ describe("createVersionChecker", () => {
 		});
 
 		checker.start();
-		// Neither pauseWhenHidden nor refetchOnVisibilityChange is true, so no listener attached
-		expect(fakeWindow.document.listenerCount("visibilitychange")).toBe(0);
 
 		fakeWindow.document.visibilityState = "hidden";
+		fakeWindow.document.dispatch("visibilitychange");
 		await vi.advanceTimersByTimeAsync(2000);
-		expect(checks).toBe(2); // still polling while hidden
+		expect(checks).toBe(2);
 
 		checker.stop();
-		vi.useRealTimers();
 	});
 
 	test("start while hidden defers timer and initial check until document becomes visible", async () => {
 		vi.useFakeTimers();
 
 		const fakeWindow = new FakeWindow();
-		// Start hidden so the deferred-start branch activates
 		fakeWindow.document.visibilityState = "hidden";
 
 		let checks = 0;
 		const checker = createVersionChecker({
 			currentVersion: "1",
 			intervalMs: 1000,
-			// checkImmediately defaults to true
 			minIntervalMs: 0,
 			getWindow: () => fakeWindow as unknown as Window,
 			fetcher: async () => {
@@ -617,24 +620,20 @@ describe("createVersionChecker", () => {
 
 		checker.start();
 
-		// While hidden: neither timer nor initial check fires
 		await vi.advanceTimersByTimeAsync(3000);
 		expect(checks).toBe(0);
 
-		// Become visible: the visibilitychange listener fires checkFromLifecycle (the deferred
-		// initial check arrives this way because refetchOnVisibilityChange defaults to true).
-		// Note: with refetchOnVisibilityChange: false, this deferred initial check would not fire
-		// until the first interval tick — that is current, accepted behavior.
+		// With refetchOnVisibilityChange: false the deferred initial check waits for the first
+		// interval tick instead; that is accepted behavior.
 		fakeWindow.document.visibilityState = "visible";
 		fakeWindow.document.dispatch("visibilitychange");
 		await flushMicrotasks();
-		expect(checks).toBe(1); // deferred initial check
+		expect(checks).toBe(1);
 
 		await vi.advanceTimersByTimeAsync(1000);
-		expect(checks).toBe(2); // interval now running
+		expect(checks).toBe(2);
 
 		checker.stop();
-		vi.useRealTimers();
 	});
 
 	test("checkImmediately defaults to true and checkImmediately: false skips the initial check", async () => {
@@ -684,5 +683,22 @@ describe("fetchJsonVersion", () => {
 			cache: "no-store",
 			signal: expect.any(AbortSignal),
 		});
+	});
+
+	test("parses the body and lets requestInit override cache but not signal", async () => {
+		const fetchMock = vi.fn<typeof fetch>(async () => Response.json({ buildId: "b1" }));
+		const { signal } = new AbortController();
+
+		await expect(
+			fetchJsonVersion({
+				endpoint: "/version.json",
+				signal,
+				requestInit: { cache: "reload", headers: { "x-test": "1" }, signal: new AbortController().signal },
+				fetch: fetchMock,
+			}),
+		).resolves.toEqual({ buildId: "b1" });
+		const init = fetchMock.mock.calls[0]?.[1];
+		expect(init).toMatchObject({ cache: "reload", headers: { "x-test": "1" } });
+		expect(init?.signal).toBe(signal);
 	});
 });

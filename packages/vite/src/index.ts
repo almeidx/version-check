@@ -1,14 +1,16 @@
 export * from "@almeidx/version-check";
 
+import { realpath } from "node:fs/promises";
 import { resolve as resolvePath } from "node:path";
 import {
 	createVersionFileContent,
 	normalizeBuildId,
 	resolveBuildId as resolveCoreBuildId,
+	versionCacheControl,
+	versionFileName,
 } from "@almeidx/version-check/build";
-import type { Plugin, UserConfig } from "vite";
+import { normalizePath, type Plugin, type UserConfig } from "vite";
 
-const defaultFileName = "version.json";
 const defaultDefineName = "__VERSION_CHECK_BUILD_ID__";
 const virtualModuleId = "virtual:version-check/build-id";
 const resolvedVirtualModuleId = `\0${virtualModuleId}`;
@@ -54,7 +56,7 @@ export type VersionCheckViteOptions = {
 };
 
 function normalizeFileName(fileName: string | undefined): string {
-	const normalized = (fileName ?? defaultFileName).replace(/^\/+/, "");
+	const normalized = (fileName ?? versionFileName).replace(/^\/+/, "");
 	if (normalized.length === 0) {
 		throw new Error("[version-check] fileName must not be empty.");
 	}
@@ -78,16 +80,11 @@ export function versionCheck(options: VersionCheckViteOptions = {}): Plugin {
 	let buildIdPromise: Promise<string> | undefined;
 	let buildId: string | undefined;
 
-	function resolveBuildIdOnce(cwd: string): Promise<string> {
-		buildIdPromise ??= (async () => {
-			const explicitBuildId = normalizeBuildId(options.buildId);
-			if (explicitBuildId !== undefined) return explicitBuildId;
-
-			const customBuildId = normalizeBuildId(await options.resolveBuildId?.({ root: cwd }));
-			if (customBuildId !== undefined) return customBuildId;
-
-			return resolveCoreBuildId();
-		})();
+	function resolveBuildIdOnce(root: string): Promise<string> {
+		buildIdPromise ??= (async () =>
+			resolveCoreBuildId({
+				buildId: normalizeBuildId(options.buildId) ?? (await options.resolveBuildId?.({ root })),
+			}))();
 
 		return buildIdPromise;
 	}
@@ -105,8 +102,11 @@ export function versionCheck(options: VersionCheckViteOptions = {}): Plugin {
 		async config(config): Promise<UserConfig | undefined> {
 			if (defineName === undefined) return undefined;
 
-			const root = typeof config.root === "string" ? resolvePath(config.root) : process.cwd();
-			const resolvedBuildId = await resolveBuildIdOnce(root);
+			// Same root Vite resolves for configResolved, so a custom resolver sees one root either way.
+			const root = resolvePath(config.root ?? process.cwd());
+			const resolvedBuildId = await resolveBuildIdOnce(
+				normalizePath(config.resolve?.preserveSymlinks === true ? root : await realpath(root).catch(() => root)),
+			);
 
 			return {
 				define: {
@@ -132,7 +132,7 @@ export function versionCheck(options: VersionCheckViteOptions = {}): Plugin {
 
 				response.statusCode = 200;
 				response.setHeader("Content-Type", "application/json; charset=utf-8");
-				response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+				response.setHeader("Cache-Control", versionCacheControl);
 				response.end(request.method === "HEAD" ? undefined : createVersionFileContent(getBuildId()));
 			});
 		},

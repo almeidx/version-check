@@ -7,14 +7,4 @@ export default defineConfig({
 	sourcemap: true,
 	clean: true,
 	target: "es2022",
-	deps: {
-		neverBundle: [
-			"next",
-			"react",
-			"@almeidx/version-check",
-			"@almeidx/version-check-react",
-			"node:fs/promises",
-			"node:path",
-		],
-	},
 });

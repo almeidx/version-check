@@ -66,10 +66,12 @@
 		"@almeidx/version-check-react": "workspace:*"
 	},
 	"devDependencies": {
+		"@testing-library/react": "catalog:",
 		"@types/node": "catalog:",
 		"@types/react": "catalog:",
 		"next": "catalog:",
 		"react": "catalog:",
+		"react-dom": "catalog:",
 		"tsdown": "catalog:",
 		"typescript": "catalog:"
 	},

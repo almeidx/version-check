@@ -2,8 +2,7 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"paths": {
-			"@almeidx/version-check": ["../core/src/index.ts"],
-			"@almeidx/version-check/cli": ["../core/src/cli.ts"]
+			"@almeidx/version-check": ["../core/src/index.ts"]
 		},
 		"types": ["node"]
 	},

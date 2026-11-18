@@ -11,7 +11,7 @@ export default defineConfig({
 			},
 			{
 				find: "@almeidx/version-check/build",
-				replacement: fileURLToPath(new URL("./packages/core/src/build-id.ts", import.meta.url)),
+				replacement: fileURLToPath(new URL("./packages/core/src/build.ts", import.meta.url)),
 			},
 			{
 				find: "@almeidx/version-check",

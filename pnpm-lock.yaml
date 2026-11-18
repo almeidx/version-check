@@ -399,6 +399,9 @@ importers:
         specifier: workspace:*
         version: link:../react
     devDependencies:
+      '@testing-library/react':
+        specifier: 'catalog:'
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.6
@@ -411,6 +414,9 @@ importers:
       react:
         specifier: 'catalog:'
         version: 19.3.1
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.3.1(react@19.3.1)
       tsdown:
         specifier: 'catalog:'
         version: 0.23.4(publint@0.3.25)(typescript@7.0.2)

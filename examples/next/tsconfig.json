@@ -7,6 +7,7 @@
 		"plugins": [{ "name": "next" }],
 		"paths": {
 			"@almeidx/version-check": ["../../packages/core/src/index.ts"],
+			"@almeidx/version-check/build": ["../../packages/core/src/build.ts"],
 			"@almeidx/version-check-react": ["../../packages/react/src/index.ts"],
 			"@almeidx/version-check-next": ["../../packages/next/src/index.ts"],
 			"@almeidx/version-check-next/client": ["../../packages/next/src/client.ts"]
